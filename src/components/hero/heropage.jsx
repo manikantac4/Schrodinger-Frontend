@@ -173,7 +173,7 @@ export default function HeroPage() {
         </DataCard>
 
         {/* ── MAIN CONTENT ── */}
-        <div className="relative z-10 flex flex-col items-center text-center w-full px-5 sm:px-8 max-w-4xl mx-auto pt-24 pb-20">
+        <div className="relative z-10 flex flex-col items-center text-center w-full px-5 sm:px-8 max-w-4xl mx-auto pt-24 ">
 
           {/* Badge */}
           <div className={`entry-0 ${phase >= 1 ? "entry-1" : ""} mb-5 sm:mb-7`} style={{ transitionDelay: "0ms" }}>
