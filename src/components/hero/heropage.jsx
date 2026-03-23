@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import Navbar from "./navbar";
 import HeroBackground from "./herobackground";
+import { useNavigate } from "react-router-dom";
 
 /* ── Floating glass data card — desktop only ── */
 function DataCard({ children, className = "", style = {}, delay = 0 }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), delay);
+    
     return () => clearTimeout(t);
   }, [delay]);
   return (
@@ -30,7 +32,7 @@ function DataCard({ children, className = "", style = {}, delay = 0 }) {
 
 export default function HeroPage() {
   const [phase, setPhase] = useState(0);
-
+    const navigate = useNavigate();
   useEffect(() => {
     const timers = [
       setTimeout(() => setPhase(1), 100),
@@ -246,6 +248,7 @@ export default function HeroPage() {
             style={{ transitionDelay: "220ms" }}
           >
             <button
+             onClick={() => navigate("/auth")}
               className="cta-primary w-full sm:w-auto group relative flex items-center justify-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full text-white font-semibold text-sm"
               style={{ background: "linear-gradient(135deg, #f97316 0%, #dc2626 100%)", letterSpacing: "0.01em" }}
             >

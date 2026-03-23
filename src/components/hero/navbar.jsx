@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, Globe } from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 
 const LANGUAGES = [
   { code: 'EN', label: 'English' },
@@ -18,7 +19,7 @@ export default function Navbar() {
   const [activeLang, setActiveLang]           = useState(LANGUAGES[0]);
   const [hoveredLink, setHoveredLink]         = useState(null);
   const langRef = useRef(null);
-
+    const navigate = useNavigate();
   useEffect(() => {
     const onScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', onScroll);
@@ -142,15 +143,17 @@ export default function Navbar() {
 
           {/* Access Portal (Log in) */}
           <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.97 }}
-            className="px-4 py-2 text-sm font-medium text-[#a1a1aa] hover:text-white rounded-lg hover:bg-white/5 transition-all duration-200"
-          >
-            Access Portal
-          </motion.button>
+  onClick={() => navigate("/auth")}
+  whileHover={{ scale: 1.02 }}
+  whileTap={{ scale: 0.97 }}
+  className="px-4 py-2 text-sm font-medium text-[#a1a1aa] hover:text-white rounded-lg hover:bg-white/5 transition-all duration-200"
+>
+  Access Portal
+</motion.button>
 
           {/* Get Started (Sign up) */}
           <motion.button
+    onClick={() => navigate("/auth")}
             whileHover={{ scale: 1.04, boxShadow: '0 0 24px rgba(255,255,255,0.12)' }}
             whileTap={{ scale: 0.97 }}
             transition={{ type: 'spring', stiffness: 380, damping: 18 }}
