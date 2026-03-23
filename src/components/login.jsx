@@ -101,7 +101,7 @@ const ParticleCanvas = () => {
 /* ══════════════════════════════════════════════
    FLOATING INPUT
 ══════════════════════════════════════════════ */
-const FloatingInput = ({ label, type='text', icon: Icon, value, onChange, id, showPasswordToggle=false, disabled=false }) => {
+const FloatingInput = ({ label, type='text', value, onChange, id, showPasswordToggle=false, disabled=false }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPass, setShowPass] = useState(false);
   const inputType = showPasswordToggle ? (showPass?'text':'password') : type;
@@ -336,7 +336,7 @@ const PasswordStrength = ({ password }) => {
 /* ══════════════════════════════════════════════
    SOCIAL BUTTON
 ══════════════════════════════════════════════ */
-const SocialButton = ({ icon: Icon, label }) => {
+const SocialButton = ({  label }) => {
   const [hov, setHov] = useState(false);
   return (
     <button
