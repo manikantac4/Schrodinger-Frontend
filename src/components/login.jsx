@@ -6,6 +6,8 @@ import {
   ArrowRight, CheckCircle2, Loader2,
   ShieldCheck, RefreshCw, KeyRound, ArrowLeft
 } from 'lucide-react';
+import { loginUser , signupUser , googleLogin } from '../firebase/authService';
+import { useNavigate } from "react-router-dom";
 
 /* ── Google Fonts ── */
 const injectFonts = () => {
@@ -428,7 +430,7 @@ export default function App() {
   const [screen, setScreen] = useState('login');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess]       = useState(false);
-
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email:'', password:'', fullName:'', confirmPassword:'',
     forgotEmail:'', otp:'', newPassword:'', confirmNewPassword:'',
@@ -471,6 +473,60 @@ export default function App() {
 
   const F = { fontFamily:"'Outfit',sans-serif" };
 
+  const handleLogin = async (e) => {
+  e.preventDefault();
+  try {
+    setIsSubmitting(true);
+
+    const res = await loginUser(formData.email, formData.password);
+
+    const user = res.user;
+    console.log(user.uid);
+
+    // 🔥 redirect to dashboard
+    navigate("/dashboard");
+
+  } catch (err) {
+    console.error(err.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+const handleSignup = async (e) => {
+  e.preventDefault();
+  try {
+    setIsSubmitting(true);
+
+    const res = await signupUser(formData.email, formData.password);
+
+    const user = res.user;
+    console.log(user.uid);
+
+    // 🔥 redirect to extra details page
+    navigate("/signup");
+
+  } catch (err) {
+    console.error(err.message);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
+const handleGoogleLogin = async () => {
+  try {
+    const res = await googleLogin();
+    const user = res.user;
+
+    console.log(user.uid);
+
+    navigate("/dashboard");
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
   /* ── SCREEN CONTENT ── */
   const renderScreen = () => {
     switch(screen) {
@@ -482,7 +538,7 @@ export default function App() {
           <H1>Welcome Back</H1>
           <Sub>Enter your credentials to continue</Sub>
 
-          <form onSubmit={e=>{ e.preventDefault(); simulate(()=>{}); }}>
+          <form onSubmit={handleLogin}>
             <FloatingInput id="email" label="Email Address" type="email" icon={Mail}
               value={formData.email} onChange={e=>setFormData({...formData,email:e.target.value})}/>
             <FloatingInput id="password" label="Password" type="password" icon={Lock}
@@ -507,7 +563,7 @@ export default function App() {
 
           <Divider/>
           <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:'0.6rem' }}>
-            <SocialButton icon={Chrome} label="Google"/>
+            <SocialButton label="Google" onClick={handleGoogleLogin} />
             <SocialButton icon={Github} label="GitHub"/>
             <SocialButton icon={Linkedin} label="LinkedIn"/>
           </div>
@@ -522,7 +578,7 @@ export default function App() {
           <H1>Create Account</H1>
           <Sub>Join our community and start today</Sub>
 
-          <form onSubmit={e=>{ e.preventDefault(); simulate(()=>{}); }}>
+          <form onSubmit={handleSignup}>
             <FloatingInput id="fullName" label="Full Name" type="text" icon={User}
               value={formData.fullName} onChange={e=>setFormData({...formData,fullName:e.target.value})}/>
             <FloatingInput id="email2" label="Email Address" type="email" icon={Mail}
