@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Import your Login page
 import Login from "./components/login";
-import HeroPage from "./components/hero/heropage";
+import HeroPage from "./components/heropage";
 import AuthRouter from "./components/authrouter";
 
 function App() {
