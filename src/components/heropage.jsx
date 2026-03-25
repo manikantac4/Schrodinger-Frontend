@@ -3,12 +3,13 @@ import Navbar from "./navbar.jsx";
 import HeroBackground from "./herobackground.jsx";
 import { useNavigate } from "react-router-dom";
 import MarketTicker from "./marketicker";
+import Problem from "./problem.jsx";
+
 /* ── Floating glass data card — desktop only ── */
 function DataCard({ children, className = "", style = {}, delay = 0 }) {
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const t = setTimeout(() => setVisible(true), delay);
-    
     return () => clearTimeout(t);
   }, [delay]);
   return (
@@ -21,7 +22,7 @@ function DataCard({ children, className = "", style = {}, delay = 0 }) {
         WebkitBackdropFilter: "blur(16px)",
         borderRadius: "14px",
         padding: "14px 18px",
-        animation: `float ${3.5}s ease-in-out infinite`,
+        animation: `float 3.5s ease-in-out infinite`,
         ...style,
       }}
     >
@@ -32,7 +33,8 @@ function DataCard({ children, className = "", style = {}, delay = 0 }) {
 
 export default function HeroPage() {
   const [phase, setPhase] = useState(0);
-    const navigate = useNavigate();
+  const navigate = useNavigate();
+
   useEffect(() => {
     const timers = [
       setTimeout(() => setPhase(1), 100),
@@ -45,7 +47,7 @@ export default function HeroPage() {
   }, []);
 
   return (
-    <>
+    <div style={{ background: "#080808", fontFamily: "'DM Sans', sans-serif" }}>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,300;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap');
 
@@ -75,7 +77,6 @@ export default function HeroPage() {
         }
         .entry-1 { opacity: 1; transform: translateY(0); }
 
-        /* CTA tempt loop */
         @keyframes cta-tempt {
           0%   { transform: scale(1);    box-shadow: 0 0 32px rgba(249,115,22,0.30); }
           70%  { transform: scale(1);    box-shadow: 0 0 32px rgba(249,115,22,0.30); }
@@ -128,7 +129,6 @@ export default function HeroPage() {
           transform: scale(1.04);
         }
 
-        /* Mobile: disable tempt animation to save battery */
         @media (max-width: 640px) {
           .cta-primary {
             animation: none;
@@ -138,15 +138,17 @@ export default function HeroPage() {
         }
       `}</style>
 
+      {/* ── NAVBAR ── */}
       <Navbar />
 
+      {/* ── HERO SECTION ── */}
       <section
-        className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-hidden bg-black"
-        style={{ fontFamily: "'DM Sans', sans-serif" }}
+        className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-visible"
+        style={{ background: "transparent" }}
       >
         <HeroBackground />
 
-        {/* Floating cards — large screens only */}
+        {/* Floating cards */}
         <DataCard className="left-[4%] xl:left-[7%] top-[26%]" delay={1400} style={{ minWidth: 180 }}>
           <div className="flex items-center gap-2 mb-2">
             <span className="text-[10px] font-semibold tracking-widest text-zinc-500 uppercase">Crude Oil</span>
@@ -174,8 +176,8 @@ export default function HeroPage() {
           <div className="mt-1.5 text-[10px] text-zinc-500">Export margin pressure: Medium</div>
         </DataCard>
 
-        {/* ── MAIN CONTENT ── */}
-        <div className="relative z-10 flex flex-col items-center text-center w-full px-5 sm:px-8 max-w-4xl mx-auto pt-24 ">
+        {/* ── HERO MAIN CONTENT ── */}
+        <div className="relative z-10 flex flex-col items-center text-center w-full px-5 sm:px-8 max-w-4xl mx-auto pt-20 pb-20">
 
           {/* Badge */}
           <div className={`entry-0 ${phase >= 1 ? "entry-1" : ""} mb-5 sm:mb-7`} style={{ transitionDelay: "0ms" }}>
@@ -203,7 +205,12 @@ export default function HeroPage() {
             The World Moves.{" "}
             <em
               className="not-italic"
-              style={{ background: "linear-gradient(135deg, #f97316 0%, #fbbf24 60%, #ef4444 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent", backgroundClip: "text" }}
+              style={{
+                background: "linear-gradient(135deg, #f97316 0%, #fbbf24 60%, #ef4444 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+              }}
             >
               We Predict
             </em>
@@ -248,7 +255,7 @@ export default function HeroPage() {
             style={{ transitionDelay: "220ms" }}
           >
             <button
-             onClick={() => navigate("/auth")}
+              onClick={() => navigate("/auth")}
               className="cta-primary w-full sm:w-auto group relative flex items-center justify-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full text-white font-semibold text-sm"
               style={{ background: "linear-gradient(135deg, #f97316 0%, #dc2626 100%)", letterSpacing: "0.01em" }}
             >
@@ -260,7 +267,13 @@ export default function HeroPage() {
 
             <button
               className="cta-demo w-full sm:w-auto group flex items-center justify-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full font-semibold text-sm"
-              style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.14)", backdropFilter: "blur(12px)", color: "#a1a1aa", letterSpacing: "0.01em" }}
+              style={{
+                background: "rgba(255,255,255,0.06)",
+                border: "1px solid rgba(255,255,255,0.14)",
+                backdropFilter: "blur(12px)",
+                color: "#a1a1aa",
+                letterSpacing: "0.01em",
+              }}
             >
               <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: "rgba(255,255,255,0.12)" }}>
                 <svg className="w-3 h-3 translate-x-0.5" fill="currentColor" viewBox="0 0 24 24">
@@ -270,35 +283,20 @@ export default function HeroPage() {
               Watch Demo
             </button>
           </div>
-
-          {/* Ticker */}
-          {/* <div
-            className={`entry-0 ${phase >= 5 ? "entry-1" : ""} mt-12 sm:mt-16 w-full overflow-hidden`}
-            style={{ transitionDelay: "300ms" }}
-          >
-            <p className="text-[10px] text-zinc-700 uppercase tracking-widest mb-4 sm:mb-5 font-medium">
-              Trusted by forward-thinking teams
-            </p>
-            <div className="relative overflow-hidden">
-              <div className="pointer-events-none absolute inset-y-0 left-0 w-8 sm:w-16 z-10" style={{ background: "linear-gradient(to right, black, transparent)" }} />
-              <div className="pointer-events-none absolute inset-y-0 right-0 w-8 sm:w-16 z-10" style={{ background: "linear-gradient(to left, black, transparent)" }} />
-              <div className="ticker-inner">
-                {["Accenture","Deloitte","HDFC Bank","Tata Steel","Infosys","Mahindra","Bajaj Finance","L&T",
-                  "Accenture","Deloitte","HDFC Bank","Tata Steel","Infosys","Mahindra","Bajaj Finance","L&T"].map((name, i) => (
-                  <span key={i} className="text-zinc-700 font-semibold text-xs sm:text-sm hover:text-zinc-400 transition-colors">
-                    {name}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div> */}
         </div>
 
-        
+        {/* ── TICKER — pinned to bottom of hero section ── */}
+        <div className="absolute bottom-0 left-0 w-full z-20">
+          <MarketTicker />
+        </div>
+
       </section>
-      <div className="absolute bottom-0 left-0 w-full z-20">
-  <MarketTicker />
-</div>
-    </>
+
+      {/* ── PROBLEM SECTION — inside root div, below hero ── */}
+      <div className="relative z-10">
+        <Problem />
+      </div>
+
+    </div>
   );
 }
