@@ -142,7 +142,11 @@ export default function HeroPage() {
       <Navbar />
 
       {/* ── HERO SECTION ── */}
+<<<<<<< HEAD
       <section className="relative w-full min-h-screen flex flex-col items-center justify-center">
+=======
+      <section className="relative w-full h-screen overflow-hidden flex flex-col">
+>>>>>>> 4a1639a (changes)
         <HeroBackground />
 
         {/* Floating cards */}
@@ -174,7 +178,7 @@ export default function HeroPage() {
         </DataCard>
 
         {/* ── HERO MAIN CONTENT ── */}
-        <div className="relative z-10 flex flex-col items-center text-center w-full px-5 sm:px-8 max-w-4xl mx-auto pt-20 pb-20">
+       <div className="relative z-10 flex-grow flex flex-col items-center justify-center px-4">
 
           {/* Badge */}
           <div className={`entry-0 ${phase >= 1 ? "entry-1" : ""} mb-5 sm:mb-7`} style={{ transitionDelay: "0ms" }}>
@@ -284,6 +288,14 @@ export default function HeroPage() {
 
       </section>
 
+<<<<<<< HEAD
+=======
+      {/* ── PROBLEM SECTION — inside root div, below hero ── */}
+      <section className="relative z-20 w-full py-20 bg-black">
+        <Problem />
+      </section>
+
+>>>>>>> 4a1639a (changes)
     </div>
   );
 }
