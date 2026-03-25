@@ -142,7 +142,7 @@ export default function HeroPage() {
       <Navbar />
 
       {/* ── HERO SECTION ── */}
-      <section className="relative w-full min-h-screen flex flex-col items-center justify-center">
+      <section className="relative w-full min-h-[95vh] flex flex-col items-center justify-center">
         <HeroBackground />
 
         {/* Floating cards */}
