@@ -473,60 +473,65 @@ export default function App() {
 
   const F = { fontFamily:"'Outfit',sans-serif" };
 
-  const handleLogin = async (e) => {
+const handleSignIn = async (e) => {
   e.preventDefault();
+
+  if (!formData.email || !formData.password) {
+    alert("Please fill all fields");
+    return;
+  }
+
   try {
     setIsSubmitting(true);
 
     const res = await loginUser(formData.email, formData.password);
 
     const user = res.user;
-    console.log(user.uid);
 
-    // 🔥 redirect to dashboard
+    console.log("Logged in UID:", user.uid);
+
+    // ✅ redirect to dashboard
     navigate("/dashboard");
 
   } catch (err) {
     console.error(err.message);
+
+    // 🔥 better UX
+    if (err.code === "auth/user-not-found") {
+      alert("User not found");
+    } else if (err.code === "auth/wrong-password") {
+      alert("Incorrect password");
+    } else {
+      alert(err.message);
+    }
+
   } finally {
     setIsSubmitting(false);
   }
 };
 
-const handleSignup = async (e) => {
-  e.preventDefault();
-  try {
-    setIsSubmitting(true);
-
-    const res = await signupUser(formData.email, formData.password);
-
-    const user = res.user;
-    console.log(user.uid);
-
-    // 🔥 redirect to extra details page
-    navigate("/signup");
-
-  } catch (err) {
-    console.error(err.message);
-  } finally {
-    setIsSubmitting(false);
-  }
-};
 
 const handleGoogleLogin = async () => {
   try {
+    setIsSubmitting(true);
+
     const res = await googleLogin();
+
     const user = res.user;
 
-    console.log(user.uid);
+    console.log("Google UID:", user.uid);
+    console.log("Email:", user.email);
 
+    // ✅ redirect
     navigate("/dashboard");
 
   } catch (err) {
-    console.error(err);
+    console.error(err.message);
+    alert("Google login failed");
+  } finally {
+    setIsSubmitting(false);
   }
 };
-
   /* ── SCREEN CONTENT ── */
   const renderScreen = () => {
     switch(screen) {
@@ -538,7 +543,7 @@ const handleGoogleLogin = async () => {
           <H1>Welcome Back</H1>
           <Sub>Enter your credentials to continue</Sub>
 
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleSignIn}>
             <FloatingInput id="email" label="Email Address" type="email" icon={Mail}
               value={formData.email} onChange={e=>setFormData({...formData,email:e.target.value})}/>
             <FloatingInput id="password" label="Password" type="password" icon={Lock}
