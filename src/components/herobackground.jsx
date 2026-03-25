@@ -1,4 +1,4 @@
-import heroVideo from "../../assets/hero-video2.mp4";
+import heroVideo from "../assets/hero-video2.mp4";
 
 export default function HeroBackground() {
   return (

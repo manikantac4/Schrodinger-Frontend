@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import Navbar from "./navbar";
-import HeroBackground from "./herobackground";
+import Navbar from "./navbar.jsx";
+import HeroBackground from "./herobackground.jsx";
 import { useNavigate } from "react-router-dom";
-
+import MarketTicker from "./marketicker";
 /* ── Floating glass data card — desktop only ── */
 function DataCard({ children, className = "", style = {}, delay = 0 }) {
   const [visible, setVisible] = useState(false);
@@ -272,7 +272,7 @@ export default function HeroPage() {
           </div>
 
           {/* Ticker */}
-          <div
+          {/* <div
             className={`entry-0 ${phase >= 5 ? "entry-1" : ""} mt-12 sm:mt-16 w-full overflow-hidden`}
             style={{ transitionDelay: "300ms" }}
           >
@@ -291,11 +291,14 @@ export default function HeroPage() {
                 ))}
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
 
         
       </section>
+      <div className="absolute bottom-0 left-0 w-full z-20">
+  <MarketTicker />
+</div>
     </>
   );
 }
