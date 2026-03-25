@@ -4,7 +4,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 // Import your Login page
-import Login from "./components/login";
+
 import HeroPage from "./components/heropage";
 import AuthRouter from "./components/authrouter";
 
@@ -16,7 +16,7 @@ function App() {
         <Route path="/" element={<HeroPage />} />
         <Route path="/auth" element={<AuthRouter />} />
         {/* Optional: separate login route */}
-        <Route path="/login" element={<Login />} />
+       
       </Routes>
     </Router>
   );
