@@ -47,7 +47,7 @@ export default function HeroPage() {
   }, []);
 
   return (
-    <div style={{ background: "#080808", fontFamily: "'DM Sans', sans-serif" }}>
+    <div style={{ background: "#080808" }} className="w-full">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,300;1,9..40,400&family=Instrument+Serif:ital@0;1&display=swap');
 
@@ -142,10 +142,7 @@ export default function HeroPage() {
       <Navbar />
 
       {/* ── HERO SECTION ── */}
-      <section
-        className="relative w-full min-h-screen flex flex-col items-center justify-center overflow-visible"
-        style={{ background: "transparent" }}
-      >
+      <section className="relative w-full min-h-screen flex flex-col items-center justify-center">
         <HeroBackground />
 
         {/* Floating cards */}
@@ -285,17 +282,7 @@ export default function HeroPage() {
           </div>
         </div>
 
-        {/* ── TICKER — pinned to bottom of hero section ── */}
-        <div className="absolute bottom-0 left-0 w-full z-20">
-          <MarketTicker />
-        </div>
-
       </section>
-
-      {/* ── PROBLEM SECTION — inside root div, below hero ── */}
-      <div className="relative z-10">
-        <Problem />
-      </div>
 
     </div>
   );

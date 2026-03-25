@@ -2,12 +2,12 @@ import heroVideo from "../assets/hero-video2.mp4";
 
 export default function HeroBackground() {
   return (
-    <div className="absolute inset-0 w-full h-full overflow-hidden">
+   <div className="absolute inset-0 w-full h-full pointer-events-none">
 
       {/* ── Layer 1: Background video — full quality, no loss ── */}
-      <video
-        className="absolute inset-0 w-full h-full object-cover"
-        style={{ opacity: 1 }}
+     <video
+  className="absolute inset-0 w-full h-full object-cover"
+  style={{ pointerEvents: "none", opacity: 1 }}
         src={heroVideo}
         autoPlay
         loop
