@@ -8,7 +8,13 @@ import {
 } from "firebase/auth";
 import { auth } from "./config";
 
+// 🔥 Google Provider Setup
 const googleProvider = new GoogleAuthProvider();
+
+// ✅ Force account selection every time
+googleProvider.setCustomParameters({
+  prompt: "select_account"
+});
 
 // 🔥 Email Login
 export const loginUser = (email, password) => {
@@ -20,7 +26,7 @@ export const signupUser = (email, password) => {
   return createUserWithEmailAndPassword(auth, email, password);
 };
 
-// 🔥 Google Login
+// 🔥 Google Login (Account chooser enabled)
 export const googleLogin = () => {
   return signInWithPopup(auth, googleProvider);
 };
