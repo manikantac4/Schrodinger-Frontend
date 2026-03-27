@@ -5,7 +5,7 @@ const styles = `
 
   .vp__root {
     min-height: 100vh;
-    background: #080808;
+    background: #000000;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -21,43 +21,8 @@ const styles = `
     box-sizing: border-box;
   }
 
-  /* ── Background ── */
-  .vp__bg-grid {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    background-image:
-      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-    background-size: 64px 64px;
-    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
-    mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 40%, transparent 100%);
-  }
+  
 
-  .vp__bg-orb-1 {
-    position: absolute;
-    width: 900px;
-    height: 900px;
-    top: -320px;
-    left: -280px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(249,115,22,0.07) 0%, transparent 65%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .vp__bg-orb-2 {
-    position: absolute;
-    width: 700px;
-    height: 700px;
-    bottom: -200px;
-    right: -180px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 65%);
-    pointer-events: none;
-    z-index: 0;
-  }
 
   /* ── Layout ── */
   .vp__wrapper {
@@ -150,7 +115,7 @@ const styles = `
     position: relative;
     border-radius: 28px;
     box-shadow:
-      0 0 0 1px rgba(255,255,255,0.06),
+  0 20px 60px rgba(0,0,0,0.6);
       0 20px 60px rgba(0,0,0,0.55),
       0 60px 120px rgba(0,0,0,0.45),
       0 4px 16px rgba(0,0,0,0.3);
@@ -280,18 +245,13 @@ export default function App() {
     <>
       <style>{styles}</style>
       <div className="vp__root">
-        <div className="vp__bg-grid" />
-        <div className="vp__bg-orb-1" />
-        <div className="vp__bg-orb-2" />
+       
 
         <div className="vp__wrapper">
 
           {/* Heading */}
           <div className="vp__heading-block">
-            <div className="vp__eyebrow">
-              <div className={`vp__eyebrow-dot${isPlaying ? ' vp__eyebrow-dot--playing' : ''}`} />
-              <span className="vp__eyebrow-text">{isPlaying ? 'Now Playing' : 'Preview'}</span>
-            </div>
+           
 
             <h1 className="vp__title">
               Demo <span className="vp__title-accent">Video</span>
