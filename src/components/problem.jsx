@@ -61,7 +61,21 @@ export default function ProblemSection() {
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,800;1,400&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap"
       />
 
-      
+      {/* ── Ambient glows ─────────────────────────────────────────── */}
+      <div aria-hidden className="absolute inset-0 pointer-events-none z-0">
+        <div className="absolute top-[-10%] left-[-5%] w-[55%] h-[60%] blur-[90px]"
+          style={{ background: 'radial-gradient(ellipse at 20% 20%, rgba(251,191,36,0.08) 0%, rgba(249,115,22,0.04) 50%, transparent 70%)' }}
+        />
+        <div className="absolute bottom-[-8%] right-[-4%] w-[40%] h-[45%] blur-[80px]"
+          style={{ background: 'radial-gradient(ellipse at 75% 75%, rgba(251,191,36,0.05) 0%, transparent 65%)' }}
+        />
+        <div className="absolute inset-0 opacity-[0.022]"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+            backgroundSize: '200px',
+          }}
+        />
+      </div>
 
       {/* ══════════════════════════════════════════════════════════════
           ONE UNIFIED LAYOUT  — heading lives inside the left column
@@ -145,9 +159,9 @@ export default function ProblemSection() {
                   style={{
                     display: 'flex', alignItems: 'center', gap: '0.8rem',
                     padding: '0.6rem 0.85rem',
-                   background: '#000',
-border: '1px solid #000',
- borderLeft: `3px solid ${accent}`,
+                    background: 'rgba(255,255,255,0.025)',
+                    border: '1px solid rgba(255,255,255,0.055)',
+                    borderLeft: `3px solid ${accent}`,
                     borderRadius: '0 6px 6px 0',
                     cursor: 'default',
                   }}
@@ -185,7 +199,7 @@ border: '1px solid #000',
           className="flex-1 relative min-h-[50vh] md:min-h-screen"
         >
           {/* Amber chevron bg */}
-          <div className="absolute inset-0 bg-black"
+          <div className="absolute inset-0 bg-[#fbbf24]"
             style={{ clipPath: 'polygon(20% 0, 100% 0, 100% 100%, 20% 100%, 0 50%)' }}
           />
           {/* Image */}
@@ -199,7 +213,7 @@ border: '1px solid #000',
               src={Problemimg}
               alt="Stressed business owner"
               className="w-full h-full object-cover object-center"
-              style={{ opacity: 1, filter: 'none' }}
+              style={{ opacity: 0.8, filter: 'contrast(1.1) brightness(0.9)' }}
               referrerPolicy="no-referrer"
             />
           </div>
