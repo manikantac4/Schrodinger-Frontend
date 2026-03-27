@@ -2,6 +2,7 @@
 import HeroPage from "../components/heropage";
 import MarketTicker from "../components/marketicker";
 import Problem from "../components/problem";
+import RecomndationEngine from "../components/recomndationengine0";
 import SocialProof from "../components/socialproof";
 import CTA from "../components/cta";
 import Footer from "../components/footer";
@@ -17,7 +18,7 @@ export default function LandingPage(){
                 <MarketTicker />
 
                 <Problem />
-            
+                <RecomndationEngine/>
                 <SocialProof />
                 <CTA/>
                 <Footer />
