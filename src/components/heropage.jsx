@@ -263,6 +263,7 @@ export default function HeroPage() {
             </button>
 
             <button
+            onClick={() => navigate("/DemoVedioSection")}
               className="cta-demo w-full sm:w-auto group flex items-center justify-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full font-semibold text-sm"
               style={{
                 background: "rgba(255,255,255,0.06)",

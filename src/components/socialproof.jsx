@@ -208,11 +208,7 @@ const ROW_TWO = [
   { value: 'ISO 27001',  label: 'Certified & Compliant',   accent: 'amber'  },
 ];
 
-const TRUST_PILLS = [
-  { dot: '#F97316', text: 'Live system · Updated every 14ms' },
-  { dot: '#3B82F6', text: 'ISO 27001 Certified'              },
-  { dot: '#F59E0B', text: 'Trusted by 12,000+ enterprises'   },
-];
+
 
 /* ─────────────────────────────────────────────────────────────────
    ACCENT PALETTE  (hoisted — never recreated)
@@ -612,40 +608,6 @@ export default function SocialProof() {
           <TickerRow items={ROW_TWO} direction="right" duration={26} />
         </motion.div>
 
-        {/* ── TRUST PILLS ── */}
-        <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.65, delay: 0.55 }}
-          style={{
-            marginTop: '3rem',
-            padding: '0 1.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '2rem',
-            flexWrap: 'wrap',
-          }}
-        >
-          {TRUST_PILLS.map(({ dot, text }) => (
-            <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '0.38rem' }}>
-              <div style={{
-                width: 6, height: 6, borderRadius: '50%',
-                background: dot,
-                boxShadow: `0 0 7px ${dot}`,
-                animation: 'blink 1.9s ease-in-out infinite',
-              }} />
-              <span style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: '0.67rem',
-                color: '#475569',
-                letterSpacing: '0.02em',
-              }}>
-                {text}
-              </span>
-            </div>
-          ))}
-        </motion.div>
 
       </div>
 
