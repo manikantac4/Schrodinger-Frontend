@@ -477,14 +477,14 @@ export default function SocialProof() {
       {/* ── Background navy radial ── */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 0,
-        background: 'radial-gradient(ellipse 80% 55% at 50% 100%, #0A0F2E 0%, #000000 62%)',
+        background: '#000000'
       }} />
 
       {/* ── Orange cinematic spotlight — top-left ── */}
       <div style={{
         position: 'absolute', top: '-8%', left: '-5%',
         width: '52%', height: '62%',
-        background: 'radial-gradient(ellipse at 22% 18%, rgba(249,115,22,0.12) 0%, rgba(245,158,11,0.06) 38%, transparent 65%)',
+       
         filter: 'blur(65px)',
         zIndex: 0, pointerEvents: 'none',
       }} />
@@ -492,7 +492,6 @@ export default function SocialProof() {
       <div style={{
         position: 'absolute', top: '2%', left: '6%',
         width: '32%', height: '38%',
-        background: 'radial-gradient(ellipse at 30% 20%, rgba(245,158,11,0.07) 0%, transparent 60%)',
         filter: 'blur(42px)',
         zIndex: 0, pointerEvents: 'none',
       }} />
@@ -500,7 +499,7 @@ export default function SocialProof() {
       {/* ── Grain overlay ── */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 1,
-        opacity: 0.022, pointerEvents: 'none',
+        opacity: 0.01, pointerEvents: 'none',
         backgroundImage: GRAIN_URL,
         backgroundSize: '256px 256px',
       }} />
@@ -524,12 +523,7 @@ export default function SocialProof() {
         ))}
       </div>
 
-      {/* ── Top rule line ── */}
-      <div style={{
-        position: 'absolute', top: 0, left: '8%', right: '8%', height: 1,
-        background: 'linear-gradient(to right, transparent, rgba(249,115,22,0.16) 28%, rgba(249,115,22,0.16) 72%, transparent)',
-        zIndex: 2,
-      }} />
+    
 
       {/* ════════════════════════════════════════════
           CONTENT — z-index 3
