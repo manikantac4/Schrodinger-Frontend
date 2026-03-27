@@ -7,6 +7,7 @@ import RecomndationEngine from "../components/recomndationengine";
 import SocialProof from "../components/socialproof";
 import CTA from "../components/cta";
 import Footer from "../components/footer";
+import Sentinel from "../components/sentinel";
 //import RecomndationEngine from "../components/recomndationengine";
 export default function LandingPage(){
     return (
@@ -19,6 +20,7 @@ export default function LandingPage(){
                 <MarketTicker />
 
                 <Problem />
+                <Sentinel />
                 <DemoVideoSection/>
                 <RecomndationEngine/>
                 <SocialProof />
