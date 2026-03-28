@@ -802,8 +802,14 @@ const steps = [
     title: "Business Context",
     shape: "circle",
     align: "left",
-    details: ["Industry", "Location", "Financial Signals", "Supply Dependencies", "Risk Buffer"],
-    image: "https://picsum.photos/seed/step1/600/400"
+   details: [
+  "Industry",
+  "Location",
+  "Supply Dependencies",
+  "Financial Health",
+  "Risk Buffer"
+],
+image: "https://picsum.photos/seed/step1/600/400"
   },
   {
     id: 2,
@@ -840,46 +846,63 @@ const steps = [
   }
 ];
 
-const StepNode = ({ shape }) => {
+const StepNode = ( { shape}) => {
+  const floatAnimation = {
+    y: [-3, 3, -3],
+    transition: { duration: 4, repeat: Infinity, ease: "easeInOut" }
+  };
+
   switch (shape) {
     case 'circle':
       return (
-        <div className="relative flex items-center justify-center w-8 h-8">
-          <div className="absolute inset-0 rounded-full bg-[#fbbf24]/20 blur-md shadow-[0_0_20px_rgba(251,191,36,0.45)]" />
-          <svg width="20" height="20" viewBox="0 0 24 24" className="text-[#fbbf24] relative z-10">
+        <motion.div animate={floatAnimation} className="relative flex items-center justify-center w-10 h-10">
+          <div className="absolute inset-0 rounded-full bg-[#fbbf24]/20 blur-md shadow-[0_0_25px_rgba(251,191,36,0.5)]" />
+          <div className="absolute inset-0 rounded-full border border-[#fbbf24]/30 animate-ping opacity-20" style={{ animationDuration: '3s' }} />
+          <svg width="22" height="22" viewBox="0 0 24 24" className="text-[#fbbf24] relative z-10 drop-shadow-[0_0_8px_rgba(251,191,36,0.8)]">
             <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="#070707" />
+            <circle cx="12" cy="12" r="3" fill="currentColor" />
           </svg>
-        </div>
+        </motion.div>
       );
     case 'hexagon':
       return (
-        <div className="relative flex items-center justify-center w-8 h-8">
-          <div className="absolute inset-0 bg-[#f97316]/20 blur-md shadow-[0_0_20px_rgba(249,115,22,0.72)]" />
-          <svg width="24" height="24" viewBox="0 0 24 24" className="text-[#f97316] relative z-10">
+        <motion.div animate={floatAnimation} className="relative flex items-center justify-center w-10 h-10">
+          <div className="absolute inset-0 bg-[#f97316]/20 blur-md shadow-[0_0_25px_rgba(249,115,22,0.6)]" />
+          <svg width="26" height="26" viewBox="0 0 24 24" className="text-[#f97316] relative z-10 drop-shadow-[0_0_8px_rgba(249,115,22,0.8)]">
             <polygon points="12 2 22 7 22 17 12 22 2 17 2 7" stroke="currentColor" strokeWidth="2.5" fill="#070707" />
+            <circle cx="12" cy="12" r="2" fill="currentColor" />
           </svg>
-        </div>
+        </motion.div>
       );
     case 'diamond':
       return (
-        <div className="relative flex items-center justify-center w-8 h-8">
-          <div className="absolute inset-0 bg-[#fb923c]/20 blur-md shadow-[0_0_20px_rgba(251,146,60,0.45)]" />
-          <svg width="20" height="20" viewBox="0 0 24 24" className="text-[#fb923c] relative z-10">
+        <motion.div animate={floatAnimation} className="relative flex items-center justify-center w-10 h-10">
+          <div className="absolute inset-0 bg-[#fb923c]/20 blur-md shadow-[0_0_25px_rgba(251,146,60,0.5)]" />
+          <svg width="22" height="22" viewBox="0 0 24 24" className="text-[#fb923c] relative z-10 drop-shadow-[0_0_8px_rgba(251,146,60,0.8)]">
             <polygon points="12 2 22 12 12 22 2 12" stroke="currentColor" strokeWidth="3" fill="#070707" />
+            <circle cx="12" cy="12" r="2" fill="currentColor" />
           </svg>
-        </div>
+        </motion.div>
       );
     case 'large-circle':
       return (
         <motion.div 
-          className="relative flex items-center justify-center w-16 h-16"
-          whileInView={{ scale: [1, 1.05, 1] }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+          className="relative flex items-center justify-center w-20 h-20"
+          whileInView={{ scale: [1, 1.08, 1] }}
+          transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
         >
-          <div className="absolute inset-0 rounded-full bg-[#fbbf24]/40 blur-xl shadow-[0_0_30px_rgba(251,191,36,0.7)]" />
-          <svg width="48" height="48" viewBox="0 0 48 48" className="text-[#fbbf24] relative z-10">
-            <circle cx="24" cy="24" r="20" stroke="currentColor" strokeWidth="2" fill="#070707" />
-            <circle cx="24" cy="24" r="10" fill="currentColor" className="opacity-80" />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#fbbf24]/40 to-[#f97316]/40 blur-xl shadow-[0_0_40px_rgba(251,191,36,0.6)]" />
+          <div className="absolute inset-0 rounded-full border border-[#fbbf24]/50 animate-ping opacity-30" style={{ animationDuration: '2s' }} />
+          <svg width="56" height="56" viewBox="0 0 48 48" className="text-[#fbbf24] relative z-10 drop-shadow-[0_0_15px_rgba(251,191,36,1)]">
+            <circle cx="24" cy="24" r="22" stroke="currentColor" strokeWidth="2" fill="#070707" />
+            <circle cx="24" cy="24" r="12" fill="url(#glowGradient)" className="opacity-90" />
+            <defs>
+              <radialGradient id="glowGradient" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#fff" />
+                <stop offset="50%" stopColor="#fbbf24" />
+                <stop offset="100%" stopColor="#f97316" />
+              </radialGradient>
+            </defs>
           </svg>
         </motion.div>
       );
@@ -887,17 +910,46 @@ const StepNode = ({ shape }) => {
       return (
         <>
           <div className="hidden md:block relative w-[160px] h-[80px]">
-            <svg width="160" height="80" viewBox="0 0 160 80" className="text-white/20 absolute top-0 left-0">
-              <path d="M 80 0 L 80 30 C 80 60 20 60 20 80" fill="none" stroke="currentColor" strokeWidth="2" />
-              <path d="M 80 0 L 80 30 C 80 60 140 60 140 80" fill="none" stroke="currentColor" strokeWidth="2" />
+            <svg width="160" height="80" viewBox="0 0 160 80" className="absolute top-0 left-0 overflow-visible">
+              <motion.path 
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+                d="M 80 0 L 80 30 C 80 60 20 60 20 80" 
+                fill="none" stroke="url(#splitGradLeft)" strokeWidth="2" 
+              />
+              <motion.path 
+                initial={{ pathLength: 0, opacity: 0 }}
+                whileInView={{ pathLength: 1, opacity: 1 }}
+                transition={{ duration: 1, ease: "easeInOut" }}
+                d="M 80 0 L 80 30 C 80 60 140 60 140 80" 
+                fill="none" stroke="url(#splitGradRight)" strokeWidth="2" 
+              />
+              <defs>
+                <linearGradient id="splitGradLeft" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.2)" />
+                  <stop offset="100%" stopColor="#f97316" />
+                </linearGradient>
+                <linearGradient id="splitGradRight" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="rgba(255,255,255,0.2)" />
+                  <stop offset="100%" stopColor="#fbbf24" />
+                </linearGradient>
+              </defs>
             </svg>
-            <div className="absolute bottom-0 left-[20px] -translate-x-1/2 w-4 h-4 rounded-full bg-[#f97316] shadow-[0_0_15px_rgba(249,115,22,0.8)]" />
-            <div className="absolute bottom-0 left-[140px] -translate-x-1/2 w-4 h-4 rounded-full bg-[#fbbf24] shadow-[0_0_15px_rgba(251,191,36,0.8)]" />
+            <motion.div 
+              initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0.8 }}
+              className="absolute bottom-0 left-[20px] -translate-x-1/2 w-4 h-4 rounded-full bg-[#f97316] shadow-[0_0_20px_rgba(249,115,22,1)] z-10" 
+            />
+            <motion.div 
+              initial={{ scale: 0 }} whileInView={{ scale: 1 }} transition={{ delay: 0.8 }}
+              className="absolute bottom-0 left-[140px] -translate-x-1/2 w-4 h-4 rounded-full bg-[#fbbf24] shadow-[0_0_20px_rgba(251,191,36,1)] z-10" 
+            />
           </div>
-          <div className="md:hidden relative flex items-center justify-center w-8 h-8">
+          <div className="md:hidden relative flex items-center justify-center w-10 h-10">
             <div className="absolute inset-0 rounded-full bg-[#fbbf24]/20 blur-md shadow-[0_0_20px_rgba(251,191,36,0.45)]" />
-            <svg width="20" height="20" viewBox="0 0 24 24" className="text-[#fbbf24] relative z-10">
+            <svg width="24" height="24" viewBox="0 0 24 24" className="text-[#fbbf24] relative z-10">
               <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="#070707" />
+              <circle cx="12" cy="12" r="3" fill="currentColor" />
             </svg>
           </div>
         </>
@@ -907,24 +959,35 @@ const StepNode = ({ shape }) => {
   }
 }
 
-const GlassCard = ({ title, details, image, className = "" }) => (
-  <div className={`bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.055)] backdrop-blur-[10px] p-6 md:p-8 rounded-2xl w-full relative overflow-hidden group ${className}`}>
-    <div className="absolute inset-0 bg-gradient-to-br from-[#fbbf24]/5 to-[#f97316]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+const GlassCard =({ title, details, image, className = "" }) => (
+  <div className={`bg-white/[0.02] border border-white/[0.05] backdrop-blur-xl p-6 md:p-8 rounded-3xl w-full relative overflow-hidden group hover:bg-white/[0.04] transition-all duration-500 shadow-2xl ${className}`}>
+    {/* Inner subtle ring for premium glass feel */}
+    <div className="absolute inset-0 rounded-3xl ring-1 ring-inset ring-white/5 pointer-events-none" />
     
-    <h3 className="font-serif text-[clamp(1.85rem,4vw,2.9rem)] mb-4 text-[#ffffff] leading-tight relative z-10">{title}</h3>
+    {/* Hover gradient glow */}
+    <div className="absolute inset-0 bg-gradient-to-br from-[#fbbf24]/10 via-transparent to-[#f97316]/5 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+    
+    <h3 className="font-serif text-[clamp(1.75rem,3.5vw,2.5rem)] mb-5 text-[#ffffff] leading-tight relative z-10 drop-shadow-md">{title}</h3>
     
     <div className="flex flex-wrap gap-2 mb-8 relative z-10">
       {details.map(d => (
-        <span key={d} className="font-mono text-[0.6rem] uppercase tracking-wider text-[rgba(255,255,255,0.78)] bg-white/5 border border-white/10 px-3 py-1.5 rounded-md">
+        <span key={d} className="font-mono text-[0.65rem] uppercase tracking-[0.08em] text-white/80 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg shadow-sm backdrop-blur-md group-hover:border-white/20 transition-colors duration-300">
           {d}
         </span>
       ))}
     </div>
     
     {image && (
-      <div className="relative w-full h-56 overflow-hidden rounded-xl border border-white/10 z-10">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#070707] via-transparent to-transparent z-10 opacity-80" />
-        <img src={image} alt={title} className="w-full h-full object-cover opacity-60 mix-blend-luminosity group-hover:mix-blend-normal group-hover:opacity-100 group-hover:scale-105 transition-all duration-700 ease-out" />
+      <div className="relative w-full h-48 md:h-56 overflow-hidden rounded-2xl border border-white/10 z-10 bg-[#070707]">
+        {/* Vignette overlay to blend image into dark theme */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#070707] via-[#070707]/40 to-transparent z-10 opacity-90 group-hover:opacity-70 transition-opacity duration-500" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#070707]/80 via-transparent to-[#070707]/80 z-10" />
+        
+        <img 
+          src={image} 
+          alt={title} 
+          className="w-full h-full object-cover opacity-50 mix-blend-luminosity group-hover:mix-blend-normal group-hover:opacity-80 group-hover:scale-110 transition-all duration-1000 ease-out" 
+        />
       </div>
     )}
   </div>
@@ -938,22 +1001,29 @@ const StepRow = ({ step, index }) => {
 
   return (
     <motion.div 
-      initial={{ opacity: 0, y: 30 }}
+      initial={{ opacity: 0, y: 40 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: false, margin: "-100px" }}
-      transition={{ duration: 0.6, ease: "easeOut" }}
+      viewport={{ once: false, margin: "-15%" }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
       className="relative flex flex-col md:flex-row w-full items-center md:justify-center mb-24 md:mb-32 group"
     >
-      <div className="md:hidden absolute left-8 top-12 w-8 h-px bg-gradient-to-r from-[#fbbf24]/50 to-transparent z-10" />
-
+      {/* Mobile connecting line */}
+      <motion.div 
+        initial={{ scaleX: 0 }} whileInView={{ scaleX: 1 }} transition={{ duration: 0.8, delay: 0.2 }}
+        className="md:hidden absolute left-8 top-12 w-8 h-[1px] bg-gradient-to-r from-[#fbbf24]/80 to-transparent z-10 origin-left" 
+      />
       {isLeft && (
         <>
-          <div className="w-full md:w-1/2 pl-16 md:pl-0 md:pr-16 flex justify-end relative">
-            <div className="hidden md:block absolute top-1/2 right-0 w-16 h-px bg-gradient-to-l from-[#fbbf24]/50 to-transparent shadow-[0_0_8px_rgba(251,191,36,0.4)] transition-all duration-500 group-hover:from-[#fbbf24]" />
+          <div className="w-full md:w-1/2 pl-20 md:pl-0 md:pr-20 flex justify-end relative">
+            {/* Desktop connecting line */}
             <motion.div 
-              initial={{ filter: "blur(10px)", x: -20 }}
+              initial={{ scaleX: 0, opacity: 0 }} whileInView={{ scaleX: 1, opacity: 1 }} transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              className="hidden md:block absolute top-1/2 right-0 w-20 h-[1px] bg-gradient-to-l from-[#fbbf24] to-transparent shadow-[0_0_8px_rgba(251,191,36,0.6)] origin-right" 
+            />
+            <motion.div 
+              initial={{ filter: "blur(12px)", x: -30 }}
               whileInView={{ filter: "blur(0px)", x: 0 }}
-              transition={{ duration: 0.7 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               className="w-full max-w-lg"
             >
               <GlassCard title={step.title} details={step.details} image={step.image} />
@@ -962,22 +1032,26 @@ const StepRow = ({ step, index }) => {
           <div className="absolute left-8 md:left-1/2 -translate-x-1/2 z-20 top-12 md:top-1/2 md:-translate-y-1/2">
             <StepNode shape={step.shape} />
           </div>
-          <div className="hidden md:block w-1/2 pl-16" />
+          <div className="hidden md:block w-1/2 pl-20" />
         </>
       )}
 
       {isRight && (
         <>
-          <div className="hidden md:block w-1/2 pr-16" />
+          <div className="hidden md:block w-1/2 pr-20" />
           <div className="absolute left-8 md:left-1/2 -translate-x-1/2 z-20 top-12 md:top-1/2 md:-translate-y-1/2">
             <StepNode shape={step.shape} />
           </div>
-          <div className="w-full md:w-1/2 pl-16 flex justify-start relative">
-            <div className="hidden md:block absolute top-1/2 left-0 w-16 h-px bg-gradient-to-r from-[#f97316]/50 to-transparent shadow-[0_0_8px_rgba(249,115,22,0.4)] transition-all duration-500 group-hover:from-[#f97316]" />
+          <div className="w-full md:w-1/2 pl-20 flex justify-start relative">
+            {/* Desktop connecting line */}
             <motion.div 
-              initial={{ filter: "blur(10px)", x: 20 }}
+              initial={{ scaleX: 0, opacity: 0 }} whileInView={{ scaleX: 1, opacity: 1 }} transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+              className="hidden md:block absolute top-1/2 left-0 w-20 h-[1px] bg-gradient-to-r from-[#f97316] to-transparent shadow-[0_0_8px_rgba(249,115,22,0.6)] origin-left" 
+            />
+            <motion.div 
+              initial={{ filter: "blur(12px)", x: 30 }}
               whileInView={{ filter: "blur(0px)", x: 0 }}
-              transition={{ duration: 0.7 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               className="w-full max-w-lg"
             >
               <GlassCard title={step.title} details={step.details} image={step.image} />
@@ -987,39 +1061,44 @@ const StepRow = ({ step, index }) => {
       )}
 
       {isCenter && (
-        <div className="w-full flex flex-col items-center relative z-20 pl-16 md:pl-0">
+        <div className="w-full flex flex-col items-center relative z-20 pl-20 md:pl-0">
           <div className="absolute left-8 md:left-1/2 -translate-x-1/2 z-20 top-12 md:-top-16 md:translate-y-0">
             <StepNode shape={step.shape} />
           </div>
           <motion.div 
-            initial={{ filter: "blur(10px)", y: 20 }}
-            whileInView={{ filter: "blur(0px)", y: 0 }}
-            transition={{ duration: 0.7 }}
-            className="w-full max-w-3xl mt-0 md:mt-8"
+            initial={{ filter: "blur(15px)", y: 30, scale: 0.95 }}
+            whileInView={{ filter: "blur(0px)", y: 0, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="w-full max-w-3xl mt-0 md:mt-12"
           >
-            <GlassCard title={step.title} details={step.details} image={step.image} className="border-[#fbbf24]/30 shadow-[0_0_40px_rgba(251,191,36,0.15)]" />
+            <GlassCard 
+              title={step.title} 
+              details={step.details} 
+              image={step.image} 
+              className="border-[#fbbf24]/30 shadow-[0_0_50px_rgba(251,191,36,0.15)] ring-1 ring-[#fbbf24]/20" 
+            />
           </motion.div>
         </div>
       )}
 
       {isSplit && (
-        <div className="w-full flex flex-col items-center relative z-20 pl-16 md:pl-0">
+        <div className="w-full flex flex-col items-center relative z-20 pl-20 md:pl-0">
           <div className="absolute left-8 md:left-1/2 -translate-x-1/2 z-20 top-12 md:-top-20 md:translate-y-0">
             <StepNode shape={step.shape} />
           </div>
-          <div className="w-full flex flex-col md:flex-row gap-8 mt-0 md:mt-8 max-w-5xl">
+          <div className="w-full flex flex-col md:flex-row gap-6 md:gap-8 mt-0 md:mt-12 max-w-5xl">
             <motion.div 
-              initial={{ filter: "blur(10px)", x: -20 }}
-              whileInView={{ filter: "blur(0px)", x: 0 }}
-              transition={{ duration: 0.7 }}
+              initial={{ filter: "blur(12px)", x: -30, opacity: 0 }}
+              whileInView={{ filter: "blur(0px)", x: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
               className="w-full md:w-1/2"
             >
               <GlassCard title="Impact Insights" details={step.detailsLeft} image={step.image} />
             </motion.div>
             <motion.div 
-              initial={{ filter: "blur(10px)", x: 20 }}
-              whileInView={{ filter: "blur(0px)", x: 0 }}
-              transition={{ duration: 0.7 }}
+              initial={{ filter: "blur(12px)", x: 30, opacity: 0 }}
+              whileInView={{ filter: "blur(0px)", x: 0, opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4, ease: "easeOut" }}
               className="w-full md:w-1/2"
             >
               <GlassCard title="Recommended Actions" details={step.detailsRight} image="https://picsum.photos/seed/step5b/600/400" />
@@ -1042,30 +1121,39 @@ export default function SentinelPipeline() {
 
   return (
     <div ref={containerRef} className="relative w-full min-h-screen bg-[#070707] py-32 overflow-hidden font-sans text-[#ffffff]">
-      <div className="max-w-3xl mx-auto text-center mb-32 px-4 relative z-10">
+      {/* Background ambient glow */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-[#fbbf24]/5 blur-[120px] rounded-full pointer-events-none" />
+
+      <div className="max-w-4xl mx-auto text-center mb-40 px-4 relative z-10">
         <motion.h2 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          className="font-serif text-[clamp(2rem,5vw,4rem)] text-[#ffffff] mb-6 leading-tight"
+          initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+          whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="font-serif text-[clamp(2.5rem,6vw,5rem)] text-[#ffffff] mb-6 leading-tight tracking-tight drop-shadow-lg"
         >
-          How Sentinel <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#fbbf24] via-[#f97316] to-[#fb923c]">Thinks</span>
+          How Sentinel <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#fbbf24] via-[#f97316] to-[#fb923c] drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">Thinks</span>
         </motion.h2>
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="font-sans text-[1.05rem] text-[rgba(255,255,255,0.78)] leading-relaxed"
+          transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
+          className="font-sans text-[1.15rem] md:text-[1.25rem] text-white/60 leading-relaxed max-w-2xl mx-auto"
         >
           A live visualization of our intelligence pipeline. From raw global signals to structured reasoning and actionable impact.
         </motion.p>
       </div>
 
-      <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-[1px] bg-[rgba(255,255,255,0.08)] -translate-x-1/2 z-0" />
+      {/* Center Spine Base */}
+      <div className="absolute left-8 md:left-1/2 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-white/10 to-transparent -translate-x-1/2 z-0" />
       
+      {/* Animated Comet Pulse */}
       <motion.div 
-        className="absolute left-8 md:left-1/2 top-0 w-[3px] h-48 bg-gradient-to-b from-transparent via-[#fbbf24] to-transparent -translate-x-1/2 rounded-full shadow-[0_0_15px_rgba(251,191,36,0.8)] z-30"
-        style={{ top: pulseY, y: "-50%" }}
-      />
+        className="absolute left-8 md:left-1/2 top-0 w-[2px] h-48 bg-gradient-to-b from-transparent via-[#fbbf24] to-[#f97316] -translate-x-1/2 z-30"
+        style={{ top: pulseY, y: "-100%" }}
+      >
+        {/* Comet Head */}
+        <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[4px] h-[12px] bg-[#fff] rounded-full blur-[1px] shadow-[0_0_20px_rgba(251,191,36,1),0_0_40px_rgba(249,115,22,0.8)]" />
+      </motion.div>
 
       <div className="max-w-7xl mx-auto px-4 md:px-8 relative z-10 pb-32">
         {steps.map((step, i) => (
