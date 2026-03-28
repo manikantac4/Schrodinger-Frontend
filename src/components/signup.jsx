@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check } from "lucide-react";
 import signupBg from "../assets/signup.png";
 import Dashboard from "./DetailsForm";
-
+import API from "../services/service";
 import { signupUser ,  googleLogin} from "../firebase/authService";
 import { useNavigate } from "react-router-dom";
 
@@ -205,6 +205,12 @@ const handleSignup = async (e) => {
     }
 
     const res = await signupUser(email, password);
+
+    await API.post("/user/sync", {
+      name,
+      email,
+      phone
+    });
 
     console.log(res.user.uid);
 
