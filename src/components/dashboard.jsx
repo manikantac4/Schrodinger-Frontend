@@ -1,531 +1,298 @@
-/**
- * @license
- * SPDX-License-Identifier: Apache-2.0
- */
-
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import {
-  Building2,
-  FileText,
-  CircleDollarSign,
-  Users,
-  Link as LinkIcon,
-  Truck,
-  CheckCircle2,
-  ChevronRight,
-  ChevronLeft,
-  Plus,
-  Trash2
+import React from 'react';
+import { motion } from 'motion/react';
+import { 
+  ChevronDown, 
+  Newspaper, 
+  AlertTriangle, 
+  Lightbulb, 
+  TrendingUp, 
+  Users, 
+  ArrowUpRight, 
+  ArrowDownRight,
+  Sparkles
 } from 'lucide-react';
 
-const initialData = {
-  profile: { industry: '', subIndustry: '', location: { country: '', state: '', city: '' }, scale: '' },
-  description: '',
-  financials: { cashReserve: '', monthlyRevenue: '', monthlyExpenses: '' },
-  operations: { employees: '', avgSalary: '' },
-  supplyChain: { rawMaterials: [{ name: '', dependencyPercentage: '' }], importDependency: '' },
-  logistics: { transportMode: [], monthlyTransportCost: '' },
-  riskProfile: { inventoryDays: '', alternativeSuppliers: false }
+// Data
+const user = {
+  name: "Pandu Ranga",
+  business: "Paradise Restaurant",
+  industry: "Food"
 };
 
-const steps = [
-  { id: 1, title: 'Profile', icon: Building2 },
-  { id: 2, title: 'Description', icon: FileText },
-  { id: 3, title: 'Financials', icon: CircleDollarSign },
-  { id: 4, title: 'Operations', icon: Users },
-  { id: 5, title: 'Supply Chain', icon: LinkIcon },
-  { id: 6, title: 'Logistics & Risk', icon: Truck },
-  { id: 7, title: 'Review', icon: CheckCircle2 },
+const news = [
+  {
+    id: 1,
+    headline: "Tomato prices surge by 40% due to supply shortage",
+    description: "Unseasonal rains have disrupted the supply chain, leading to a sharp increase in tomato prices across wholesale markets.",
+    tag: "Supply Chain",
+    impact: "negative"
+  },
+  {
+    id: 2,
+    headline: "New local food festival announced for next month",
+    description: "The city council has announced a week-long food festival to promote local businesses and culinary tourism.",
+    tag: "Local Event",
+    impact: "positive"
+  },
+  {
+    id: 3,
+    headline: "Energy costs expected to stabilize in Q3",
+    description: "Recent policy changes and increased renewable output are projected to stabilize commercial energy rates.",
+    tag: "Utility",
+    impact: "positive"
+  },
+  {
+    id: 4,
+    headline: "Labor shortage continues to affect hospitality sector",
+    description: "Restaurants and hotels are struggling to find skilled staff as the industry faces a prolonged labor shortage.",
+    tag: "Labor",
+    impact: "negative"
+  }
 ];
 
-// Shared input style
-const inputCls = "w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-violet-400/50 transition-all duration-200";
+const impacts = [
+  {
+    id: 1,
+    title: "Increased ingredient cost",
+    explanation: "Tomato and onion prices are up 40%, affecting your signature curries.",
+    severity: "High",
+    icon: TrendingUp,
+    color: "text-[#f97316]",
+    bg: "bg-[rgba(249,115,22,0.1)]",
+    border: "border-[rgba(249,115,22,0.3)]"
+  },
+  {
+    id: 2,
+    title: "Higher footfall expected",
+    explanation: "Upcoming local food festival could increase weekend traffic by 25%.",
+    severity: "Low",
+    icon: Users,
+    color: "text-[#fbbf24]",
+    bg: "bg-[rgba(251,191,36,0.1)]",
+    border: "border-[rgba(251,191,36,0.3)]"
+  },
+  {
+    id: 3,
+    title: "Staff retention risk",
+    explanation: "Competitors are offering higher wages for experienced chefs.",
+    severity: "Medium",
+    icon: AlertTriangle,
+    color: "text-[#fb923c]",
+    bg: "bg-[rgba(251,146,60,0.1)]",
+    border: "border-[rgba(251,146,60,0.3)]"
+  }
+];
+
+const suggestions = [
+  {
+    id: 1,
+    advice: "Consider switching to local suppliers for tomatoes to reduce costs and ensure steady supply.",
+    type: "AI Recommended"
+  },
+  {
+    id: 2,
+    advice: "Create a special 'Festival Menu' to attract tourists during the upcoming local food event.",
+    type: "AI Recommended"
+  },
+  {
+    id: 3,
+    advice: "Review current staff benefits and consider a small retention bonus for key kitchen personnel.",
+    type: "AI Recommended"
+  }
+];
 
 export default function App() {
-  const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState(initialData);
-
-  const updateData = (fields) => {
-    setFormData(prev => ({ ...prev, ...fields }));
-  };
-
-  const nextStep = () => { if (currentStep < steps.length) setCurrentStep(p => p + 1); };
-  const prevStep = () => { if (currentStep > 1) setCurrentStep(p => p - 1); };
-
-  const isStepValid = () => {
-    switch (currentStep) {
-      case 1: return formData.profile.industry && formData.profile.subIndustry && formData.profile.location.country && formData.profile.scale;
-      case 2: return formData.description.length > 10;
-      case 3: return formData.financials.cashReserve !== '' && formData.financials.monthlyRevenue !== '' && formData.financials.monthlyExpenses !== '';
-      case 4: return formData.operations.employees !== '' && formData.operations.avgSalary !== '';
-      case 5: return formData.supplyChain.rawMaterials.every(m => m.name && m.dependencyPercentage !== '') && formData.supplyChain.importDependency !== '';
-      case 6: return formData.logistics.transportMode.length > 0 && formData.logistics.monthlyTransportCost !== '' && formData.riskProfile.inventoryDays !== '';
-      default: return true;
-    }
-  };
-
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-8 relative overflow-hidden bg-[#0a0a0f] text-white">
-      {/* Background Glow */}
-      <div className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-orange-500/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-sky-400/10 blur-[120px] rounded-full pointer-events-none" />
-
-      <div className="w-full max-w-3xl z-10">
-        {/* Header & Progress */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-6">
-            <h1 className="text-4xl font-bold font-serif text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-400">
-              Sentinel
-            </h1>
-            <div className="text-xs font-mono text-slate-500 tracking-widest">
-              STEP {currentStep} OF {steps.length}
-            </div>
-          </div>
-
-          <div className="h-1 w-full bg-white/10 rounded-full overflow-hidden">
-            <motion.div
-              className="h-full bg-gradient-to-r from-orange-500 to-violet-500"
-              initial={{ width: 0 }}
-              animate={{ width: `${(currentStep / steps.length) * 100}%` }}
-              transition={{ duration: 0.5, ease: "easeInOut" }}
-            />
-          </div>
-        </div>
-
-        {/* Main Card */}
-        <div className="bg-white/5 border border-white/10 backdrop-blur-xl shadow-2xl rounded-3xl p-6 sm:p-10 min-h-[500px] flex flex-col">
-          <div className="flex-1">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentStep}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-              >
-                {currentStep === 1 && <Step1Profile data={formData} updateData={updateData} />}
-                {currentStep === 2 && <Step2Description data={formData} updateData={updateData} />}
-                {currentStep === 3 && <Step3Financials data={formData} updateData={updateData} />}
-                {currentStep === 4 && <Step4Operations data={formData} updateData={updateData} />}
-                {currentStep === 5 && <Step5SupplyChain data={formData} updateData={updateData} />}
-                {currentStep === 6 && <Step6Logistics data={formData} updateData={updateData} />}
-                {currentStep === 7 && <Step7Review data={formData} setStep={setCurrentStep} />}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Navigation */}
-          <div className="mt-10 pt-6 border-t border-white/10 flex items-center justify-between">
-            <button
-              onClick={prevStep}
-              className={`px-6 py-3 flex items-center gap-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all duration-200 ${currentStep === 1 ? 'invisible' : ''}`}
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span className="text-xs tracking-widest uppercase">Back</span>
-            </button>
-
-            {currentStep < steps.length ? (
-              <button
-                onClick={nextStep}
-                disabled={!isStepValid()}
-                className="px-8 py-3 flex items-center gap-2 rounded-xl font-medium text-white bg-gradient-to-r from-orange-500 to-violet-500 hover:from-orange-400 hover:to-violet-400 shadow-lg hover:shadow-orange-500/25 transition-all duration-300 disabled:opacity-50 disabled:pointer-events-none"
-              >
-                <span className="text-xs tracking-widest uppercase">Next Step</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                onClick={() => alert('Risk Analysis Submitted Successfully!')}
-                className="px-8 py-3 flex items-center gap-2 rounded-xl font-medium text-white bg-gradient-to-r from-orange-500 to-violet-500 hover:from-orange-400 hover:to-violet-400 shadow-lg transition-all duration-300"
-              >
-                <span className="text-xs tracking-widest uppercase">Submit Analysis</span>
-                <CheckCircle2 className="w-4 h-4" />
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// --- Step Header ---
-function StepHeader({ icon: Icon, title, subtitle }) {
-  return (
-    <div className="flex items-center gap-3 mb-8">
-      <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-        <Icon className="w-6 h-6 text-violet-400" />
-      </div>
-      <div>
-        <h2 className="text-lg font-medium">{title}</h2>
-        <p className="text-sm text-slate-500">{subtitle}</p>
-      </div>
-    </div>
-  );
-}
-
-// --- Step 1 ---
-function Step1Profile({ data, updateData }) {
-  return (
-    <div className="space-y-6">
-      <StepHeader icon={Building2} title="Business Profile" subtitle="Basic information about your organization." />
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-xs text-slate-400 uppercase tracking-wider">Industry</label>
-          <select
-            className={inputCls + " appearance-none"}
-            value={data.profile.industry}
-            onChange={e => updateData({ profile: { ...data.profile, industry: e.target.value } })}
-          >
-            <option value="" disabled className="bg-[#0a0a0f]">Select Industry</option>
-            <option value="Food" className="bg-[#0a0a0f]">Food & Beverage</option>
-            <option value="Energy" className="bg-[#0a0a0f]">Energy</option>
-            <option value="Manufacturing" className="bg-[#0a0a0f]">Manufacturing</option>
-            <option value="Technology" className="bg-[#0a0a0f]">Technology</option>
-          </select>
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs text-slate-400 uppercase tracking-wider">Sub Industry</label>
-          <input
-            type="text"
-            className={inputCls}
-            placeholder="e.g. Semiconductor"
-            value={data.profile.subIndustry}
-            onChange={e => updateData({ profile: { ...data.profile, subIndustry: e.target.value } })}
-          />
-        </div>
-      </div>
-
-      <div className="space-y-3">
-        <label className="text-xs text-slate-400 uppercase tracking-wider">Location</label>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <input type="text" className={inputCls} placeholder="Country"
-            value={data.profile.location.country}
-            onChange={e => updateData({ profile: { ...data.profile, location: { ...data.profile.location, country: e.target.value } } })} />
-          <input type="text" className={inputCls} placeholder="State/Province"
-            value={data.profile.location.state}
-            onChange={e => updateData({ profile: { ...data.profile, location: { ...data.profile.location, state: e.target.value } } })} />
-          <input type="text" className={inputCls} placeholder="City"
-            value={data.profile.location.city}
-            onChange={e => updateData({ profile: { ...data.profile, location: { ...data.profile.location, city: e.target.value } } })} />
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-xs text-slate-400 uppercase tracking-wider">Scale</label>
-        <select
-          className={inputCls + " appearance-none"}
-          value={data.profile.scale}
-          onChange={e => updateData({ profile: { ...data.profile, scale: e.target.value } })}
-        >
-          <option value="" disabled className="bg-[#0a0a0f]">Select Scale</option>
-          <option value="Small" className="bg-[#0a0a0f]">Small (1–50 employees)</option>
-          <option value="Medium" className="bg-[#0a0a0f]">Medium (51–500 employees)</option>
-          <option value="Large" className="bg-[#0a0a0f]">Large (500+ employees)</option>
-        </select>
-      </div>
-    </div>
-  );
-}
-
-// --- Step 2 ---
-function Step2Description({ data, updateData }) {
-  return (
-    <div className="space-y-6">
-      <StepHeader icon={FileText} title="Business Description" subtitle="Detail your operations and risk factors." />
-      <div className="space-y-2">
-        <label className="text-xs text-slate-400 uppercase tracking-wider">Operations & Risks</label>
-        <textarea
-          className={inputCls + " min-h-[200px] resize-none"}
-          placeholder="Describe your business operations, supply chain dependencies, and perceived risks..."
-          value={data.description}
-          onChange={e => updateData({ description: e.target.value })}
-        />
-        <p className="text-xs text-slate-600 mt-2">Please provide at least a brief paragraph detailing your core dependencies.</p>
-      </div>
-    </div>
-  );
-}
-
-// --- Step 3 ---
-function Step3Financials({ data, updateData }) {
-  const profitLoss = (Number(data.financials.monthlyRevenue) || 0) - (Number(data.financials.monthlyExpenses) || 0);
-  const isProfit = profitLoss >= 0;
-
-  return (
-    <div className="space-y-6">
-      <StepHeader icon={CircleDollarSign} title="Financial Details" subtitle="Current financial health indicators." />
-
-      <div className="space-y-2">
-        <label className="text-xs text-slate-400 uppercase tracking-wider">Cash Reserve (USD)</label>
-        <input type="number" className={inputCls + " font-mono"} placeholder="0.00"
-          value={data.financials.cashReserve}
-          onChange={e => updateData({ financials: { ...data.financials, cashReserve: e.target.value ? Number(e.target.value) : '' } })} />
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-xs text-slate-400 uppercase tracking-wider">Monthly Revenue (USD)</label>
-          <input type="number" className={inputCls + " font-mono"} placeholder="0.00"
-            value={data.financials.monthlyRevenue}
-            onChange={e => updateData({ financials: { ...data.financials, monthlyRevenue: e.target.value ? Number(e.target.value) : '' } })} />
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs text-slate-400 uppercase tracking-wider">Monthly Expenses (USD)</label>
-          <input type="number" className={inputCls + " font-mono"} placeholder="0.00"
-            value={data.financials.monthlyExpenses}
-            onChange={e => updateData({ financials: { ...data.financials, monthlyExpenses: e.target.value ? Number(e.target.value) : '' } })} />
-        </div>
-      </div>
-
-      {(data.financials.monthlyRevenue !== '' && data.financials.monthlyExpenses !== '') && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
+    <div className="min-h-screen bg-[#070707] text-[#ffffff] p-4 md:p-8 lg:p-12 font-sans selection:bg-[rgba(249,115,22,0.3)]">
+      <div className="max-w-7xl mx-auto space-y-12">
+        
+        {/* Header */}
+        <motion.header 
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className={`p-4 rounded-xl border flex items-center justify-between ${isProfit ? 'bg-green-500/5 border-green-500/20' : 'bg-red-500/5 border-red-500/20'}`}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
         >
-          <span className="text-sm text-slate-400">Estimated Monthly {isProfit ? 'Profit' : 'Loss'}</span>
-          <span className={`font-mono text-lg ${isProfit ? 'text-green-400' : 'text-red-400'}`}>
-            {isProfit ? '+' : '-'}${Math.abs(profitLoss).toLocaleString()}
-          </span>
-        </motion.div>
-      )}
-    </div>
-  );
-}
+          <div>
+            <h1 className="font-serif font-medium tracking-tight text-[#ffffff]" style={{ fontSize: 'clamp(1.85rem, 4vw, 2.9rem)' }}>
+              Welcome back, Pandu <motion.span 
+                className="inline-block origin-bottom-right"
+                animate={{ rotate: [0, 14, -8, 14, -4, 10, 0, 0] }}
+                transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1 }}
+              >👋</motion.span>
+            </h1>
+            <p className="text-[rgba(255,255,255,0.52)] text-[1.05rem] mt-2">
+              Here’s what’s happening around your business today
+            </p>
+          </div>
+          
+          <motion.div 
+            whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.055)' }}
+            whileTap={{ scale: 0.98 }}
+            className="flex items-center gap-4 bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.055)] p-2 pr-4 rounded-[24px] transition-colors cursor-pointer backdrop-blur-md"
+          >
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#f97316] to-[#fbbf24] flex items-center justify-center text-[#070707] font-bold text-[1.05rem] shadow-[0_0_15px_rgba(249,115,22,0.3)]">
+              PR
+            </div>
+            <div>
+              <h3 className="font-medium text-[1.05rem] leading-tight text-[#ffffff]">{user.name}</h3>
+              <p className="text-[0.87rem] text-[rgba(255,255,255,0.52)]">{user.business}</p>
+            </div>
+            <ChevronDown className="w-5 h-5 text-[rgba(255,255,255,0.52)] ml-2" />
+          </motion.div>
+        </motion.header>
 
-// --- Step 4 ---
-function Step4Operations({ data, updateData }) {
-  return (
-    <div className="space-y-6">
-      <StepHeader icon={Users} title="Operations" subtitle="Workforce and operational metrics." />
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-xs text-slate-400 uppercase tracking-wider">Number of Employees</label>
-          <input type="number" className={inputCls + " font-mono"} placeholder="0"
-            value={data.operations.employees}
-            onChange={e => updateData({ operations: { ...data.operations, employees: e.target.value ? Number(e.target.value) : '' } })} />
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs text-slate-400 uppercase tracking-wider">Average Salary (USD/yr)</label>
-          <input type="number" className={inputCls + " font-mono"} placeholder="0.00"
-            value={data.operations.avgSalary}
-            onChange={e => updateData({ operations: { ...data.operations, avgSalary: e.target.value ? Number(e.target.value) : '' } })} />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// --- Step 5 ---
-function Step5SupplyChain({ data, updateData }) {
-  const addMaterial = () => updateData({
-    supplyChain: { ...data.supplyChain, rawMaterials: [...data.supplyChain.rawMaterials, { name: '', dependencyPercentage: '' }] }
-  });
-
-  const removeMaterial = (index) => {
-    const m = [...data.supplyChain.rawMaterials];
-    m.splice(index, 1);
-    updateData({ supplyChain: { ...data.supplyChain, rawMaterials: m } });
-  };
-
-  const updateMaterial = (index, field, value) => {
-    const m = [...data.supplyChain.rawMaterials];
-    m[index] = { ...m[index], [field]: value };
-    updateData({ supplyChain: { ...data.supplyChain, rawMaterials: m } });
-  };
-
-  return (
-    <div className="space-y-6">
-      <StepHeader icon={LinkIcon} title="Supply Chain" subtitle="Material dependencies and import exposure." />
-
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <label className="text-xs text-slate-400 uppercase tracking-wider">Raw Materials</label>
-          <button onClick={addMaterial} className="text-xs text-violet-400 hover:text-violet-300 flex items-center gap-1 transition-colors">
-            <Plus className="w-3 h-3" /> Add Material
-          </button>
-        </div>
-
-        <div className="space-y-3">
-          <AnimatePresence>
-            {data.supplyChain.rawMaterials.map((mat, idx) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="flex items-center gap-3"
+        {/* Top News */}
+        <section>
+          <motion.div 
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="flex items-center gap-3 mb-6"
+          >
+            <div className="p-2 rounded-xl bg-[rgba(251,191,36,0.1)] border border-[rgba(251,191,36,0.2)]">
+              <Newspaper className="w-5 h-5 text-[#fbbf24]" />
+            </div>
+            <h2 className="text-[1.05rem] font-medium text-[rgba(255,255,255,0.78)] tracking-wide">Relevant News</h2>
+          </motion.div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {news.map((item, index) => (
+              <motion.div 
+                key={item.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
+                whileHover={{ y: -5, backgroundColor: 'rgba(255,255,255,0.055)' }}
+                className="bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.055)] rounded-[24px] p-6 flex flex-col h-full backdrop-blur-sm relative overflow-hidden group"
               >
-                <input type="text" className={inputCls} placeholder="Material Name"
-                  value={mat.name}
-                  onChange={e => updateMaterial(idx, 'name', e.target.value)} />
-                <div className="relative w-32">
-                  <input type="number" className={inputCls + " font-mono pr-8"} placeholder="0" min="0" max="100"
-                    value={mat.dependencyPercentage}
-                    onChange={e => updateMaterial(idx, 'dependencyPercentage', e.target.value ? Number(e.target.value) : '')} />
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600">%</span>
+                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[rgba(251,191,36,0.45)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                
+                <div className="flex justify-between items-start mb-5">
+                  <span className="text-[0.6rem] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-[rgba(255,255,255,0.055)] text-[rgba(255,255,255,0.78)] border border-[rgba(255,255,255,0.055)]">
+                    {item.tag}
+                  </span>
+                  <div className={`p-1.5 rounded-full ${item.impact === 'positive' ? 'bg-[rgba(251,191,36,0.1)]' : 'bg-[rgba(249,115,22,0.1)]'}`}>
+                    {item.impact === 'positive' ? (
+                      <ArrowUpRight className="w-4 h-4 text-[#fbbf24]" />
+                    ) : (
+                      <ArrowDownRight className="w-4 h-4 text-[#f97316]" />
+                    )}
+                  </div>
                 </div>
-                {data.supplyChain.rawMaterials.length > 1 && (
-                  <button onClick={() => removeMaterial(idx)}
-                    className="p-3 text-slate-600 hover:text-red-400 transition-colors rounded-xl hover:bg-red-400/10">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                )}
+                
+                <h3 className="text-[1.05rem] font-medium mb-3 text-[#ffffff] leading-snug">
+                  {item.headline}
+                </h3>
+                <p className="text-[0.87rem] text-[rgba(255,255,255,0.52)] line-clamp-3 mt-auto leading-relaxed">
+                  {item.description}
+                </p>
               </motion.div>
             ))}
-          </AnimatePresence>
-        </div>
-      </div>
+          </div>
+        </section>
 
-      <div className="pt-4 border-t border-white/10 space-y-2">
-        <label className="text-xs text-slate-400 uppercase tracking-wider">Overall Import Dependency (%)</label>
-        <div className="relative w-full sm:w-1/2">
-          <input type="number" className={inputCls + " font-mono pr-8"} placeholder="0" min="0" max="100"
-            value={data.supplyChain.importDependency}
-            onChange={e => updateData({ supplyChain: { ...data.supplyChain, importDependency: e.target.value ? Number(e.target.value) : '' } })} />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600">%</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// --- Step 6 ---
-function Step6Logistics({ data, updateData }) {
-  const transportOptions = ['Road', 'Sea', 'Air', 'Rail'];
-
-  const toggleTransport = (mode) => {
-    const current = data.logistics.transportMode;
-    const updated = current.includes(mode) ? current.filter(m => m !== mode) : [...current, mode];
-    updateData({ logistics: { ...data.logistics, transportMode: updated } });
-  };
-
-  return (
-    <div className="space-y-8">
-      <StepHeader icon={Truck} title="Logistics & Risk Profile" subtitle="Transportation and inventory resilience." />
-
-      <div className="space-y-4">
-        <label className="text-xs text-slate-400 uppercase tracking-wider">Transport Modes</label>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          {transportOptions.map(mode => {
-            const isSelected = data.logistics.transportMode.includes(mode);
-            return (
-              <button key={mode} onClick={() => toggleTransport(mode)}
-                className={`py-3 px-4 rounded-xl border transition-all duration-300 text-sm font-medium ${
-                  isSelected
-                    ? 'bg-orange-500/20 border-orange-500 text-white shadow-[0_0_15px_rgba(249,115,22,0.2)]'
-                    : 'bg-transparent border-white/10 text-slate-500 hover:border-white/20'
-                }`}>
-                {mode}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <label className="text-xs text-slate-400 uppercase tracking-wider">Monthly Transport Cost (USD)</label>
-        <input type="number" className={inputCls + " sm:w-1/2 font-mono"} placeholder="0.00"
-          value={data.logistics.monthlyTransportCost}
-          onChange={e => updateData({ logistics: { ...data.logistics, monthlyTransportCost: e.target.value ? Number(e.target.value) : '' } })} />
-      </div>
-
-      <div className="pt-6 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <label className="text-xs text-slate-400 uppercase tracking-wider">Inventory Days</label>
-          <input type="number" className={inputCls + " font-mono"} placeholder="0"
-            value={data.riskProfile.inventoryDays}
-            onChange={e => updateData({ riskProfile: { ...data.riskProfile, inventoryDays: e.target.value ? Number(e.target.value) : '' } })} />
-        </div>
-
-        <div className="space-y-3">
-          <label className="text-xs text-slate-400 uppercase tracking-wider block">Alternative Suppliers Available</label>
-          <button
-            onClick={() => updateData({ riskProfile: { ...data.riskProfile, alternativeSuppliers: !data.riskProfile.alternativeSuppliers } })}
-            className={`relative w-14 h-8 rounded-full transition-colors duration-300 ${data.riskProfile.alternativeSuppliers ? 'bg-violet-500' : 'bg-slate-600'}`}
-          >
-            <motion.div
-              className="absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow-md"
-              animate={{ x: data.riskProfile.alternativeSuppliers ? 24 : 0 }}
-              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            />
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// --- Step 7 ---
-function Step7Review({ data, setStep }) {
-  const Section = ({ title, step, children }) => (
-    <div className="mb-6 last:mb-0">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-xs text-slate-600 uppercase tracking-wider">{title}</h3>
-        <button onClick={() => setStep(step)} className="text-xs text-violet-400 hover:text-violet-300">Edit</button>
-      </div>
-      <div className="bg-white/[0.03] rounded-xl p-4 border border-white/5">{children}</div>
-    </div>
-  );
-
-  const Row = ({ label, value, mono = false }) => (
-    <div className="flex justify-between items-start py-2 border-b border-white/5 last:border-0 last:pb-0 first:pt-0">
-      <span className="text-sm text-slate-500">{label}</span>
-      <span className={`text-sm text-right ${mono ? 'font-mono' : ''}`}>{value || '-'}</span>
-    </div>
-  );
-
-  return (
-    <div className="space-y-2 h-[450px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-white/10 [&::-webkit-scrollbar-thumb]:rounded-full">
-      <div className="flex items-center gap-3 mb-6 sticky top-0 bg-[#12121a]/90 backdrop-blur-md py-2 z-10">
-        <div className="p-3 rounded-xl bg-white/5 border border-white/10">
-          <CheckCircle2 className="w-6 h-6 text-violet-400" />
-        </div>
-        <div>
-          <h2 className="text-lg font-medium">Review & Submit</h2>
-          <p className="text-sm text-slate-500">Verify your risk analysis data.</p>
-        </div>
-      </div>
-
-      <Section title="Profile" step={1}>
-        <Row label="Industry" value={`${data.profile.industry} - ${data.profile.subIndustry}`} />
-        <Row label="Location" value={[data.profile.location.city, data.profile.location.state, data.profile.location.country].filter(Boolean).join(', ')} />
-        <Row label="Scale" value={data.profile.scale} />
-      </Section>
-
-      <Section title="Financials" step={3}>
-        <Row label="Cash Reserve" value={`$${Number(data.financials.cashReserve).toLocaleString()}`} mono />
-        <Row label="Monthly Revenue" value={`$${Number(data.financials.monthlyRevenue).toLocaleString()}`} mono />
-        <Row label="Monthly Expenses" value={`$${Number(data.financials.monthlyExpenses).toLocaleString()}`} mono />
-      </Section>
-
-      <Section title="Operations" step={4}>
-        <Row label="Employees" value={Number(data.operations.employees).toLocaleString()} mono />
-        <Row label="Avg Salary" value={`$${Number(data.operations.avgSalary).toLocaleString()}/yr`} mono />
-      </Section>
-
-      <Section title="Supply Chain" step={5}>
-        <Row label="Import Dependency" value={`${data.supplyChain.importDependency}%`} mono />
-        <div className="mt-2 pt-2 border-t border-white/5">
-          <span className="text-sm text-slate-500 block mb-2">Raw Materials</span>
-          {data.supplyChain.rawMaterials.map((mat, i) => (
-            <div key={i} className="flex justify-between text-sm mb-1 last:mb-0">
-              <span>{mat.name}</span>
-              <span className="font-mono text-slate-400">{mat.dependencyPercentage}%</span>
+        {/* 2-Column Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+          
+          {/* Impacts */}
+          <section>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="flex items-center gap-3 mb-6"
+            >
+              <div className="p-2 rounded-xl bg-[rgba(249,115,22,0.1)] border border-[rgba(249,115,22,0.2)]">
+                <AlertTriangle className="w-5 h-5 text-[#f97316]" />
+              </div>
+              <h2 className="text-[1.05rem] font-medium text-[rgba(255,255,255,0.78)] tracking-wide">Potential Impacts on Your Business</h2>
+            </motion.div>
+            
+            <div className="space-y-4">
+              {impacts.map((impact, index) => {
+                const Icon = impact.icon;
+                return (
+                  <motion.div 
+                    key={impact.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
+                    whileHover={{ scale: 1.01, backgroundColor: 'rgba(255,255,255,0.055)' }}
+                    className="bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.055)] rounded-[24px] p-5 flex items-start gap-5 backdrop-blur-sm transition-all"
+                  >
+                    <div className={`p-3.5 rounded-[18px] ${impact.bg} ${impact.border} border`}>
+                      <Icon className={`w-5 h-5 ${impact.color}`} />
+                    </div>
+                    <div className="flex-1 pt-1">
+                      <div className="flex justify-between items-start gap-4">
+                        <h3 className="text-[1.05rem] font-medium text-[#ffffff] leading-tight">{impact.title}</h3>
+                        <span className={`text-[0.6rem] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full border ${impact.border} ${impact.color} ${impact.bg} whitespace-nowrap`}>
+                          {impact.severity}
+                        </span>
+                      </div>
+                      <p className="text-[0.9rem] text-[rgba(255,255,255,0.52)] mt-2 leading-relaxed">
+                        {impact.explanation}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
             </div>
-          ))}
-        </div>
-      </Section>
+          </section>
 
-      <Section title="Logistics & Risk" step={6}>
-        <Row label="Transport Modes" value={data.logistics.transportMode.join(', ')} />
-        <Row label="Transport Cost" value={`$${Number(data.logistics.monthlyTransportCost).toLocaleString()}/mo`} mono />
-        <Row label="Inventory Days" value={data.riskProfile.inventoryDays} mono />
-        <Row label="Alt Suppliers" value={data.riskProfile.alternativeSuppliers ? 'Yes' : 'No'} />
-      </Section>
+          {/* Suggestions */}
+          <section>
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="flex items-center gap-3 mb-6"
+            >
+              <div className="p-2 rounded-xl bg-[rgba(251,191,36,0.1)] border border-[rgba(251,191,36,0.2)]">
+                <Lightbulb className="w-5 h-5 text-[#fbbf24]" />
+              </div>
+              <h2 className="text-[1.05rem] font-medium text-[rgba(255,255,255,0.78)] tracking-wide">AI Suggestions</h2>
+            </motion.div>
+            
+            <div className="space-y-4">
+              {suggestions.map((suggestion, index) => (
+                <motion.div 
+                  key={suggestion.id}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
+                  whileHover={{ 
+                    scale: 1.01, 
+                    backgroundColor: 'rgba(255,255,255,0.055)',
+                    boxShadow: '0 10px 30px -10px rgba(251,191,36,0.1)'
+                  }}
+                  className="bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.055)] rounded-[24px] p-6 relative overflow-hidden group backdrop-blur-sm transition-all"
+                >
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#fbbf24] to-[#f97316] opacity-0 group-hover:opacity-[0.04] rounded-full blur-3xl transition-opacity duration-700 -mr-10 -mt-10 pointer-events-none" />
+                  
+                  <div className="flex items-start gap-5 relative z-10">
+                    <div className="mt-1 p-2 rounded-full bg-[rgba(251,191,36,0.1)] border border-[rgba(251,191,36,0.2)]">
+                      <Sparkles className="w-4 h-4 text-[#fbbf24]" />
+                    </div>
+                    <div>
+                      <div className="mb-3">
+                        <span className="text-[0.6rem] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-gradient-to-r from-[rgba(251,191,36,0.15)] to-[rgba(249,115,22,0.15)] text-[#fbbf24] border border-[rgba(251,191,36,0.2)]">
+                          {suggestion.type}
+                        </span>
+                      </div>
+                      <p className="text-[1.05rem] text-[rgba(255,255,255,0.78)] leading-relaxed">
+                        {suggestion.advice}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </section>
+
+        </div>
+      </div>
     </div>
   );
 }

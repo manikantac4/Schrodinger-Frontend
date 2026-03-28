@@ -7,6 +7,7 @@ import './App.css'
 import LandingPage from "./pages/LandingPage";
 import HeroPage from "./components/heropage";
 import AuthRouter from "./components/authrouter";
+import Details from "./components/DetailsForm";
 import Dashboard from "./components/dashboard"; 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthRouter />} />
         {/* Optional: separate login route */}
+          <Route path="/details" element={<Details />} />
           <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>

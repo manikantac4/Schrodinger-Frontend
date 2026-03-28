@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check } from "lucide-react";
 import signupBg from "../assets/signup.png";
-import Dashboard from "./dashboard";
+import Dashboard from "./DetailsForm";
 
 import { signupUser ,  googleLogin} from "../firebase/authService";
 import { useNavigate } from "react-router-dom";
@@ -209,7 +209,7 @@ const handleSignup = async (e) => {
     console.log(res.user.uid);
 
     // ✅ move to next screen or dashboard
-    navigate("/dashboard");
+    navigate("/details");
 
   } catch (err) {
     setError(err.message);
@@ -222,7 +222,7 @@ const handleGoogle = async () => {
   try {
     const res = await googleLogin();
     console.log(res.user.uid);
-    navigate("/dashboard");
+    navigate("/details");
   } catch (err) {
     setError(err.message);
   }
