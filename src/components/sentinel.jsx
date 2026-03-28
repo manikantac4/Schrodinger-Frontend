@@ -821,7 +821,7 @@ image: "https://picsum.photos/seed/step1/600/400"
   },
   {
     id: 3,
-    title: "ML Processing",
+    title: "AI Processing",
     shape: "diamond",
     align: "left",
     details: ["Data Cleaning", "Signal Structuring", "Feature Extraction", "AI Pre-processing"],
