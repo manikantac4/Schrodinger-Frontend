@@ -1,23 +1,20 @@
-import React from 'react';
 import { motion } from 'motion/react';
-import { 
-  ChevronDown, 
-  Newspaper, 
-  AlertTriangle, 
-  Lightbulb, 
-  TrendingUp, 
-  Users, 
-  ArrowUpRight, 
+import {
+  ChevronDown,
+  Newspaper,
+  AlertTriangle,
+  Lightbulb,
+  TrendingUp,
+  Users,
+  ArrowUpRight,
   ArrowDownRight,
-  Sparkles
+  Sparkles,
+  Zap
 } from 'lucide-react';
 
-// Data
-const user = {
-  name: "Pandu Ranga",
-  business: "Paradise Restaurant",
-  industry: "Food"
-};
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+const user = { name: "Pandu Ranga", business: "Paradise Restaurant", industry: "Food & Dining" };
 
 const news = [
   {
@@ -54,245 +51,426 @@ const impacts = [
   {
     id: 1,
     title: "Increased ingredient cost",
-    explanation: "Tomato and onion prices are up 40%, affecting your signature curries.",
+    explanation: "Tomato and onion prices are up 40%, directly affecting your signature curry margins.",
     severity: "High",
     icon: TrendingUp,
-    color: "text-[#f97316]",
-    bg: "bg-[rgba(249,115,22,0.1)]",
-    border: "border-[rgba(249,115,22,0.3)]"
+    accent: "#FF6B35",
+    label: "Cost Risk"
   },
   {
     id: 2,
     title: "Higher footfall expected",
-    explanation: "Upcoming local food festival could increase weekend traffic by 25%.",
+    explanation: "Upcoming local food festival could increase weekend traffic by an estimated 25%.",
     severity: "Low",
     icon: Users,
-    color: "text-[#fbbf24]",
-    bg: "bg-[rgba(251,191,36,0.1)]",
-    border: "border-[rgba(251,191,36,0.3)]"
+    accent: "#F5C842",
+    label: "Opportunity"
   },
   {
     id: 3,
     title: "Staff retention risk",
-    explanation: "Competitors are offering higher wages for experienced chefs.",
+    explanation: "Competitors are offering higher wages for experienced kitchen personnel in your area.",
     severity: "Medium",
     icon: AlertTriangle,
-    color: "text-[#fb923c]",
-    bg: "bg-[rgba(251,146,60,0.1)]",
-    border: "border-[rgba(251,146,60,0.3)]"
+    accent: "#FF9F43",
+    label: "HR Risk"
   }
 ];
 
 const suggestions = [
   {
     id: 1,
-    advice: "Consider switching to local suppliers for tomatoes to reduce costs and ensure steady supply.",
-    type: "AI Recommended"
+    advice: "Switch to local tomato suppliers to reduce costs and ensure a steady supply through the season.",
+    tag: "Supply"
   },
   {
     id: 2,
-    advice: "Create a special 'Festival Menu' to attract tourists during the upcoming local food event.",
-    type: "AI Recommended"
+    advice: "Launch a special 'Festival Menu' to attract tourists during the upcoming local food event.",
+    tag: "Revenue"
   },
   {
     id: 3,
-    advice: "Review current staff benefits and consider a small retention bonus for key kitchen personnel.",
-    type: "AI Recommended"
+    advice: "Review staff benefits and consider a small retention bonus for key kitchen personnel this quarter.",
+    tag: "HR"
   }
 ];
 
+// ─── Animations ───────────────────────────────────────────────────────────────
+
+const container = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }
+};
+
+const fadeLeft = {
+  hidden: { opacity: 0, x: -20 },
+  visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }
+};
+
+// ─── Section Label ─────────────────────────────────────────────────────────────
+
+const SectionLabel = ({ icon: Icon, label, accent = "#F5C842" }) => (
+  <motion.div
+    initial={{ opacity: 0, x: -16 }}
+    animate={{ opacity: 1, x: 0 }}
+    transition={{ duration: 0.5 }}
+    className="flex items-center gap-3 mb-8"
+  >
+    <div className="flex items-center justify-center w-8 h-8 rounded-xl" style={{ background: `${accent}1A`, border: `1px solid ${accent}30` }}>
+      <Icon size={15} style={{ color: accent }} />
+    </div>
+    <span className="text-sm font-semibold tracking-[0.08em] uppercase" style={{ color: 'rgba(255,255,255,0.45)', fontFamily: '"DM Mono", "Fira Mono", monospace' }}>
+      {label}
+    </span>
+    <div className="flex-1 h-px" style={{ background: 'linear-gradient(to right, rgba(255,255,255,0.06), transparent)' }} />
+  </motion.div>
+);
+
+// ─── News Card ─────────────────────────────────────────────────────────────────
+
+const NewsCard = ({ item }) => (
+  <motion.div
+    variants={fadeUp}
+    whileHover={{ y: -4, transition: { duration: 0.2 } }}
+    className="flex flex-col h-full rounded-3xl p-6 cursor-pointer relative overflow-hidden"
+    style={{
+      background: 'rgba(255,255,255,0.032)',
+      border: '1px solid rgba(255,255,255,0.072)',
+    }}
+  >
+    {/* Subtle glow on hover via pseudo-element alternative */}
+    <div className="flex items-start justify-between mb-5">
+      <span
+        className="text-[10px] font-semibold tracking-[0.1em] uppercase px-3 py-1.5 rounded-full"
+        style={{
+          background: 'rgba(255,255,255,0.06)',
+          border: '1px solid rgba(255,255,255,0.09)',
+          color: 'rgba(255,255,255,0.55)',
+          fontFamily: '"DM Mono", monospace'
+        }}
+      >
+        {item.tag}
+      </span>
+      <div
+        className="flex items-center justify-center w-8 h-8 rounded-full"
+        style={{
+          background: item.impact === 'positive' ? 'rgba(245,200,66,0.12)' : 'rgba(255,107,53,0.12)',
+        }}
+      >
+        {item.impact === 'positive'
+          ? <ArrowUpRight size={16} style={{ color: '#F5C842' }} />
+          : <ArrowDownRight size={16} style={{ color: '#FF6B35' }} />
+        }
+      </div>
+    </div>
+
+    <h3
+      className="text-base font-semibold leading-snug mb-3"
+      style={{ color: 'rgba(255,255,255,0.92)', fontFamily: '"Playfair Display", "Georgia", serif', lineHeight: 1.45 }}
+    >
+      {item.headline}
+    </h3>
+
+    <p
+      className="text-sm leading-relaxed mt-auto"
+      style={{ color: 'rgba(255,255,255,0.38)', lineHeight: 1.7 }}
+    >
+      {item.description}
+    </p>
+
+    {/* Bottom accent line */}
+    <div
+      className="absolute bottom-0 left-6 right-6 h-px"
+      style={{ background: item.impact === 'positive' ? 'rgba(245,200,66,0.12)' : 'rgba(255,107,53,0.12)' }}
+    />
+  </motion.div>
+);
+
+// ─── Impact Card ───────────────────────────────────────────────────────────────
+
+const ImpactCard = ({ item }) => {
+  const Icon = item.icon;
+  return (
+    <motion.div
+      variants={fadeLeft}
+      whileHover={{ x: 4, transition: { duration: 0.18 } }}
+      className="flex items-start gap-5 rounded-3xl p-5 relative overflow-hidden"
+      style={{
+        background: 'rgba(255,255,255,0.025)',
+        border: '1px solid rgba(255,255,255,0.065)',
+      }}
+    >
+      <div
+        className="flex-shrink-0 flex items-center justify-center rounded-2xl w-11 h-11"
+        style={{ background: `${item.accent}18`, border: `1px solid ${item.accent}28` }}
+      >
+        <Icon size={18} style={{ color: item.accent }} />
+      </div>
+
+      <div className="flex-1 min-w-0 pt-0.5">
+        <div className="flex items-start gap-3 justify-between mb-2">
+          <h3 className="text-base font-semibold leading-tight" style={{ color: 'rgba(255,255,255,0.9)', fontFamily: '"Playfair Display", serif' }}>
+            {item.title}
+          </h3>
+          <span
+            className="flex-shrink-0 text-[9px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full"
+            style={{
+              background: `${item.accent}18`,
+              border: `1px solid ${item.accent}30`,
+              color: item.accent,
+              fontFamily: '"DM Mono", monospace'
+            }}
+          >
+            {item.label}
+          </span>
+        </div>
+        <p className="text-sm leading-relaxed" style={{ color: 'rgba(255,255,255,0.42)', lineHeight: 1.65 }}>
+          {item.explanation}
+        </p>
+      </div>
+
+      {/* Left border accent */}
+      <div
+        className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full"
+        style={{ background: `linear-gradient(to bottom, ${item.accent}60, ${item.accent}00)` }}
+      />
+    </motion.div>
+  );
+};
+
+// ─── Suggestion Card ───────────────────────────────────────────────────────────
+
+const SuggestionCard = ({ item, index }) => (
+  <motion.div
+    variants={fadeUp}
+    whileHover={{ scale: 1.008, transition: { duration: 0.18 } }}
+    className="flex items-start gap-5 rounded-3xl p-6 relative overflow-hidden group"
+    style={{
+      background: 'rgba(255,255,255,0.025)',
+      border: '1px solid rgba(255,255,255,0.065)',
+    }}
+  >
+    {/* Subtle background glow */}
+    <div
+      className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
+      style={{ background: 'radial-gradient(ellipse at top right, rgba(245,200,66,0.04), transparent 70%)' }}
+    />
+
+    <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-2xl" style={{ background: 'rgba(245,200,66,0.1)', border: '1px solid rgba(245,200,66,0.2)' }}>
+      <Sparkles size={16} style={{ color: '#F5C842' }} />
+    </div>
+
+    <div className="relative z-10 flex-1 min-w-0">
+      <div className="flex items-center gap-2 mb-3">
+        <span
+          className="text-[9px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full"
+          style={{
+            background: 'linear-gradient(135deg, rgba(245,200,66,0.15), rgba(255,107,53,0.15))',
+            border: '1px solid rgba(245,200,66,0.2)',
+            color: '#F5C842',
+            fontFamily: '"DM Mono", monospace'
+          }}
+        >
+          AI · {item.tag}
+        </span>
+      </div>
+      <p className="text-[0.94rem] leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)', lineHeight: 1.7 }}>
+        {item.advice}
+      </p>
+    </div>
+  </motion.div>
+);
+
+// ─── Stat Pill ─────────────────────────────────────────────────────────────────
+
+const StatPill = ({ label, value, accent }) => (
+  <div
+    className="flex flex-col gap-1 px-5 py-4 rounded-2xl"
+    style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
+  >
+    <span className="text-[10px] font-semibold tracking-widest uppercase" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: '"DM Mono", monospace' }}>{label}</span>
+    <span className="text-xl font-bold" style={{ color: accent, fontFamily: '"Playfair Display", serif' }}>{value}</span>
+  </div>
+);
+
+// ─── Main App ──────────────────────────────────────────────────────────────────
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#070707] text-[#ffffff] p-4 md:p-8 lg:p-12 font-sans selection:bg-[rgba(249,115,22,0.3)]">
-      <div className="max-w-7xl mx-auto space-y-12">
-        
-        {/* Header */}
-        <motion.header 
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, ease: "easeOut" }}
-          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6"
-        >
-          <div>
-            <h1 className="font-serif font-medium tracking-tight text-[#ffffff]" style={{ fontSize: 'clamp(1.85rem, 4vw, 2.9rem)' }}>
-              Welcome back, Pandu <motion.span 
-                className="inline-block origin-bottom-right"
-                animate={{ rotate: [0, 14, -8, 14, -4, 10, 0, 0] }}
-                transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 1 }}
-              >👋</motion.span>
-            </h1>
-            <p className="text-[rgba(255,255,255,0.52)] text-[1.05rem] mt-2">
-              Here’s what’s happening around your business today
-            </p>
-          </div>
-          
-          <motion.div 
-            whileHover={{ scale: 1.02, backgroundColor: 'rgba(255,255,255,0.055)' }}
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-4 bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.055)] p-2 pr-4 rounded-[24px] transition-colors cursor-pointer backdrop-blur-md"
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+        * { box-sizing: border-box; }
+      `}</style>
+
+      <div
+        className="min-h-screen text-white"
+        style={{
+          background: '#080A0C',
+          fontFamily: '"DM Sans", sans-serif',
+        }}
+      >
+        {/* Ambient background glows */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+          <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: '55vw', height: '55vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,107,53,0.04) 0%, transparent 70%)' }} />
+          <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: '50vw', height: '50vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,200,66,0.035) 0%, transparent 70%)' }} />
+        </div>
+
+        <div className="relative" style={{ zIndex: 1, maxWidth: '1280px', margin: '0 auto', padding: 'clamp(28px, 5vw, 72px) clamp(20px, 4vw, 56px)' }}>
+
+          {/* ── Header ── */}
+          <motion.header
+            initial={{ opacity: 0, y: -24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+            className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-16"
           >
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#f97316] to-[#fbbf24] flex items-center justify-center text-[#070707] font-bold text-[1.05rem] shadow-[0_0_15px_rgba(249,115,22,0.3)]">
-              PR
-            </div>
             <div>
-              <h3 className="font-medium text-[1.05rem] leading-tight text-[#ffffff]">{user.name}</h3>
-              <p className="text-[0.87rem] text-[rgba(255,255,255,0.52)]">{user.business}</p>
-            </div>
-            <ChevronDown className="w-5 h-5 text-[rgba(255,255,255,0.52)] ml-2" />
-          </motion.div>
-        </motion.header>
+              {/* Eyebrow */}
+              <div className="flex items-center gap-2 mb-3">
+                <div className="w-1.5 h-1.5 rounded-full" style={{ background: '#F5C842', boxShadow: '0 0 6px #F5C842' }} />
+                <span className="text-xs font-semibold tracking-[0.12em] uppercase" style={{ color: 'rgba(255,255,255,0.35)', fontFamily: '"DM Mono", monospace' }}>
+                  Live Intelligence · {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}
+                </span>
+              </div>
 
-        {/* Top News */}
-        <section>
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
-            className="flex items-center gap-3 mb-6"
-          >
-            <div className="p-2 rounded-xl bg-[rgba(251,191,36,0.1)] border border-[rgba(251,191,36,0.2)]">
-              <Newspaper className="w-5 h-5 text-[#fbbf24]" />
-            </div>
-            <h2 className="text-[1.05rem] font-medium text-[rgba(255,255,255,0.78)] tracking-wide">Relevant News</h2>
-          </motion.div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-            {news.map((item, index) => (
-              <motion.div 
-                key={item.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 + index * 0.1 }}
-                whileHover={{ y: -5, backgroundColor: 'rgba(255,255,255,0.055)' }}
-                className="bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.055)] rounded-[24px] p-6 flex flex-col h-full backdrop-blur-sm relative overflow-hidden group"
+              <h1
+                className="font-bold leading-tight"
+                style={{
+                  fontFamily: '"Playfair Display", serif',
+                  fontSize: 'clamp(2rem, 4.5vw, 3.25rem)',
+                  color: '#FFFFFF',
+                  letterSpacing: '-0.01em',
+                  lineHeight: 1.15
+                }}
               >
-                <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-[rgba(251,191,36,0.45)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                <div className="flex justify-between items-start mb-5">
-                  <span className="text-[0.6rem] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-[rgba(255,255,255,0.055)] text-[rgba(255,255,255,0.78)] border border-[rgba(255,255,255,0.055)]">
-                    {item.tag}
-                  </span>
-                  <div className={`p-1.5 rounded-full ${item.impact === 'positive' ? 'bg-[rgba(251,191,36,0.1)]' : 'bg-[rgba(249,115,22,0.1)]'}`}>
-                    {item.impact === 'positive' ? (
-                      <ArrowUpRight className="w-4 h-4 text-[#fbbf24]" />
-                    ) : (
-                      <ArrowDownRight className="w-4 h-4 text-[#f97316]" />
-                    )}
-                  </div>
-                </div>
-                
-                <h3 className="text-[1.05rem] font-medium mb-3 text-[#ffffff] leading-snug">
-                  {item.headline}
-                </h3>
-                <p className="text-[0.87rem] text-[rgba(255,255,255,0.52)] line-clamp-3 mt-auto leading-relaxed">
-                  {item.description}
-                </p>
-              </motion.div>
-            ))}
-          </div>
-        </section>
-
-        {/* 2-Column Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
-          
-          {/* Impacts */}
-          <section>
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="flex items-center gap-3 mb-6"
-            >
-              <div className="p-2 rounded-xl bg-[rgba(249,115,22,0.1)] border border-[rgba(249,115,22,0.2)]">
-                <AlertTriangle className="w-5 h-5 text-[#f97316]" />
-              </div>
-              <h2 className="text-[1.05rem] font-medium text-[rgba(255,255,255,0.78)] tracking-wide">Potential Impacts on Your Business</h2>
-            </motion.div>
-            
-            <div className="space-y-4">
-              {impacts.map((impact, index) => {
-                const Icon = impact.icon;
-                return (
-                  <motion.div 
-                    key={impact.id}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 + index * 0.1 }}
-                    whileHover={{ scale: 1.01, backgroundColor: 'rgba(255,255,255,0.055)' }}
-                    className="bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.055)] rounded-[24px] p-5 flex items-start gap-5 backdrop-blur-sm transition-all"
-                  >
-                    <div className={`p-3.5 rounded-[18px] ${impact.bg} ${impact.border} border`}>
-                      <Icon className={`w-5 h-5 ${impact.color}`} />
-                    </div>
-                    <div className="flex-1 pt-1">
-                      <div className="flex justify-between items-start gap-4">
-                        <h3 className="text-[1.05rem] font-medium text-[#ffffff] leading-tight">{impact.title}</h3>
-                        <span className={`text-[0.6rem] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full border ${impact.border} ${impact.color} ${impact.bg} whitespace-nowrap`}>
-                          {impact.severity}
-                        </span>
-                      </div>
-                      <p className="text-[0.9rem] text-[rgba(255,255,255,0.52)] mt-2 leading-relaxed">
-                        {impact.explanation}
-                      </p>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Suggestions */}
-          <section>
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex items-center gap-3 mb-6"
-            >
-              <div className="p-2 rounded-xl bg-[rgba(251,191,36,0.1)] border border-[rgba(251,191,36,0.2)]">
-                <Lightbulb className="w-5 h-5 text-[#fbbf24]" />
-              </div>
-              <h2 className="text-[1.05rem] font-medium text-[rgba(255,255,255,0.78)] tracking-wide">AI Suggestions</h2>
-            </motion.div>
-            
-            <div className="space-y-4">
-              {suggestions.map((suggestion, index) => (
-                <motion.div 
-                  key={suggestion.id}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: 0.5 + index * 0.1 }}
-                  whileHover={{ 
-                    scale: 1.01, 
-                    backgroundColor: 'rgba(255,255,255,0.055)',
-                    boxShadow: '0 10px 30px -10px rgba(251,191,36,0.1)'
-                  }}
-                  className="bg-[rgba(255,255,255,0.025)] border border-[rgba(255,255,255,0.055)] rounded-[24px] p-6 relative overflow-hidden group backdrop-blur-sm transition-all"
+                Welcome back,{' '}
+                <span style={{ color: '#F5C842' }}>Pandu</span>
+                &nbsp;
+                <motion.span
+                  className="inline-block"
+                  animate={{ rotate: [0, 14, -8, 14, -4, 10, 0] }}
+                  transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 3 }}
+                  style={{ transformOrigin: 'bottom right' }}
                 >
-                  <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-br from-[#fbbf24] to-[#f97316] opacity-0 group-hover:opacity-[0.04] rounded-full blur-3xl transition-opacity duration-700 -mr-10 -mt-10 pointer-events-none" />
-                  
-                  <div className="flex items-start gap-5 relative z-10">
-                    <div className="mt-1 p-2 rounded-full bg-[rgba(251,191,36,0.1)] border border-[rgba(251,191,36,0.2)]">
-                      <Sparkles className="w-4 h-4 text-[#fbbf24]" />
-                    </div>
-                    <div>
-                      <div className="mb-3">
-                        <span className="text-[0.6rem] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-gradient-to-r from-[rgba(251,191,36,0.15)] to-[rgba(249,115,22,0.15)] text-[#fbbf24] border border-[rgba(251,191,36,0.2)]">
-                          {suggestion.type}
-                        </span>
-                      </div>
-                      <p className="text-[1.05rem] text-[rgba(255,255,255,0.78)] leading-relaxed">
-                        {suggestion.advice}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+                  👋
+                </motion.span>
+              </h1>
+
+              <p className="mt-3 text-base" style={{ color: 'rgba(255,255,255,0.42)', fontWeight: 300, letterSpacing: '0.01em' }}>
+                Here's what's happening around your business today
+              </p>
             </div>
+
+            {/* Profile card */}
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              className="flex items-center gap-4 rounded-3xl cursor-pointer"
+              style={{
+                background: 'rgba(255,255,255,0.04)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                padding: '10px 18px 10px 10px'
+              }}
+            >
+              <div
+                className="flex items-center justify-center w-12 h-12 rounded-2xl font-bold text-base"
+                style={{
+                  background: 'linear-gradient(135deg, #FF6B35, #F5C842)',
+                  color: '#080A0C',
+                  boxShadow: '0 4px 20px rgba(255,107,53,0.25)'
+                }}
+              >
+                PR
+              </div>
+              <div>
+                <p className="text-[0.95rem] font-semibold" style={{ color: 'rgba(255,255,255,0.92)' }}>{user.name}</p>
+                <p className="text-xs" style={{ color: 'rgba(255,255,255,0.38)' }}>{user.business}</p>
+              </div>
+              <ChevronDown size={16} style={{ color: 'rgba(255,255,255,0.3)', marginLeft: 4 }} />
+            </motion.div>
+          </motion.header>
+
+          {/* ── Stats Row ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+            className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-16"
+          >
+            <StatPill label="News Items" value="4 Today" accent="#F5C842" />
+            <StatPill label="High Risk" value="1 Alert" accent="#FF6B35" />
+            <StatPill label="Opportunities" value="2 Found" accent="#6EE7B7" />
+            <StatPill label="AI Suggestions" value="3 Ready" accent="#A78BFA" />
+          </motion.div>
+
+          {/* ── News ── */}
+          <section className="mb-16">
+            <SectionLabel icon={Newspaper} label="Relevant News" accent="#F5C842" />
+            <motion.div
+              variants={container}
+              initial="hidden"
+              animate="visible"
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+            >
+              {news.map(item => <NewsCard key={item.id} item={item} />)}
+            </motion.div>
           </section>
+
+          {/* ── Two Column ── */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-14">
+
+            {/* Impacts */}
+            <section>
+              <SectionLabel icon={Zap} label="Business Impacts" accent="#FF6B35" />
+              <motion.div
+                variants={container}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-col gap-4"
+              >
+                {impacts.map(item => <ImpactCard key={item.id} item={item} />)}
+              </motion.div>
+            </section>
+
+            {/* Suggestions */}
+            <section>
+              <SectionLabel icon={Lightbulb} label="AI Suggestions" accent="#F5C842" />
+              <motion.div
+                variants={container}
+                initial="hidden"
+                animate="visible"
+                className="flex flex-col gap-4"
+              >
+                {suggestions.map((item, i) => <SuggestionCard key={item.id} item={item} index={i} />)}
+              </motion.div>
+            </section>
+
+          </div>
+
+          {/* Footer */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="mt-16 pt-8 flex items-center justify-between"
+            style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}
+          >
+            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.2)', fontFamily: '"DM Mono", monospace' }}>
+              Paradise Restaurant · Intelligence Dashboard
+            </span>
+            <span className="text-xs" style={{ color: 'rgba(255,255,255,0.2)', fontFamily: '"DM Mono", monospace' }}>
+              Powered by AI
+            </span>
+          </motion.div>
 
         </div>
       </div>
-    </div>
+    </>
   );
 }
