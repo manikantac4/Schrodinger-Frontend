@@ -184,8 +184,9 @@ const handleSignIn = async (e) => {
 
     const res = await loginUser(email, password);
     const user = res.user;
-
+    const idToken = await user.getIdToken();
     console.log("Logged in UID:", user.uid);
+    console.log("Auth token : ",idToken);
     navigate("/dashboard");
 
   } catch (err) {
