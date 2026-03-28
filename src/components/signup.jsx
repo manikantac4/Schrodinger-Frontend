@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, User, Phone, ArrowRight, Check } from "lucide-react";
 import signupBg from "../assets/signup.png";
+import Dashboard from "./dashboard";
 
 import { signupUser ,  googleLogin} from "../firebase/authService";
 import { useNavigate } from "react-router-dom";
@@ -208,7 +209,7 @@ const handleSignup = async (e) => {
     console.log(res.user.uid);
 
     // ✅ move to next screen or dashboard
-    navigate("/complete-profile");
+    navigate("/dashboard");
 
   } catch (err) {
     setError(err.message);
