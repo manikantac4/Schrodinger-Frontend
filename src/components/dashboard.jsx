@@ -353,75 +353,165 @@ const ImpactCards = ({ impacts }) => {
   );
 };
 
-const SuggestionCard = ({ item }) => (
-  <motion.div
-    initial={{ opacity: 0, y: 10 }}
-    animate={{ opacity: 1, y: 0 }}
-    whileHover={{ y: -2 }}
-    className="flex items-start gap-4 rounded-xl p-5 relative overflow-hidden bg-white/[0.04] border border-white/[0.07]"
-  >
-    <div className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-white/[0.06]">
-      <Sparkles size={14} className="text-white/50" />
-    </div>
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-2 mb-2">
-        <span className="text-[9px] font-bold tracking-[0.12em] uppercase px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-white/40 font-mono">
-          AI · {item._category || item.tag}
-        </span>
-        {item.material && (
-          <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[#3a9e75]/10 border border-[#3a9e75]/20 text-[#3a9e75]/80 font-mono">
-            {item.material}
-          </span>
-        )}
-      </div>
-      <p className="text-sm leading-relaxed text-white/60">{item.action || item.advice}</p>
-    </div>
-  </motion.div>
-);
+// ─── Glowing Border Wrapper (new component) ────────────────────────────────────
 
-const OptimizedCard = ({ item }) => {
-  const Icon = stratIcon(item._category || '');
+const GlowingBorderWrapper = ({ children, className = "", conicGradient, borderThickness = 1, borderRadius = 12 }) => {
+  // Use a default gradient if none is provided
+ // Uses "Burnt Orange" and "Steel Blue/Slate" for a high-end look
+const defaultGradient = "conic-gradient(from 0deg, #854D0E, #1E293B, #0F172A, #854D0E)";
+  const gradient = conicGradient || defaultGradient;
+
   return (
+    <div className={`relative group ${className}`} style={{ borderRadius: `${borderRadius}px` }}>
+      {/* ── Animated Border ── */}
+      <div
+        className="absolute transition-opacity duration-500 opacity-100"
+        style={{
+          inset: `-${borderThickness}px`, // Place it slightly outside the content
+          borderRadius: `${borderRadius + borderThickness}px`, // Match the content's border radius
+          overflow: "hidden", // Clip the background to the border shape
+          pointerEvents: "none", // Don't block mouse events
+          zIndex: 1, // Place it just below the content (which will have z-index: 2)
+
+          // ── The CSS Magic: Masking ──
+          // This mask ensures that only the 'border' part of this container is visible.
+          // It basically says: 'Draw everything (linear-gradient), but exclude the middle content area'.
+          WebkitMask: `
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0)
+          `,
+          WebkitMaskComposite: "xor",
+          maskComposite: "exclude",
+          padding: `${borderThickness}px`, // The width of the border
+        }}
+      >
+        {/* ── Spinning Background ── */}
+        <div
+          className="absolute top-1/2 left-1/2 aspect-square"
+          style={{
+            transform: "translate(-50%, -50%)",
+            width: "300%", // Make it large enough to cover the mask as it rotates
+            background: gradient,
+            animation: "vp-spin 4s linear infinite", // Apply the spinning animation
+          }}
+        />
+      </div>
+
+      {/* ── Glow Effect (Slight blur on hover) ── */}
+      <div
+        className="absolute transition-opacity duration-500 opacity-0 group-hover:opacity-100"
+        style={{
+          inset: `-${borderThickness * 2}px`, // Slightly larger than the border
+          borderRadius: `${borderRadius + borderThickness * 2}px`,
+          overflow: "hidden",
+          pointerEvents: "none",
+          zIndex: 0, // Place it below the border and content
+
+          // Masking (same technique)
+          WebkitMask: `
+            linear-gradient(#fff 0 0) content-box,
+            linear-gradient(#fff 0 0)
+          `,
+          WebkitMaskComposite: "xor",
+          maskComposite: "exclude",
+          padding: `${borderThickness * 2}px`,
+          filter: "blur(4px)", // Add a slight blur for the glow
+        }}
+      >
+        <div
+          className="absolute top-1/2 left-1/2 aspect-square"
+          style={{
+            transform: "translate(-50%, -50%)",
+            width: "300%",
+            background: gradient,
+            animation: "vp-spin 4s linear infinite",
+          }}
+        />
+      </div>
+
+      {/* ── The Actual Content ── */}
+      <div className="relative z-10 h-full"> {/* h-full ensures content fills the wrapper */}
+        {children}
+      </div>
+    </div>
+  );
+};
+
+// ─── Updated SuggestionCard ──────────────────────────────────────────────────
+
+const SuggestionCard = ({ item }) => (
+  <GlowingBorderWrapper> {/* Wrapper handles the effect */}
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ y: -2 }}
-      className="flex items-start gap-4 rounded-xl p-5 relative overflow-hidden bg-[#3a9e75]/[0.05] border border-[#3a9e75]/20"
+      className="flex items-start gap-4 h-full rounded-xl p-5 relative overflow-hidden bg-white/[0.04]" // h-full added, border removed
     >
-      <div className="absolute left-0 top-3 bottom-3 w-[2px] rounded-full bg-[#3a9e75]/40" />
-      <div className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-[#3a9e75]/10 border border-[#3a9e75]/20">
-        <Icon size={14} className="text-[#3a9e75]" />
+      <div className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-white/[0.06]">
+        <Sparkles size={14} className="text-white/50" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="flex items-center flex-wrap gap-2 mb-2">
-          <span className="text-[9px] font-bold tracking-[0.12em] uppercase px-2 py-0.5 rounded-full bg-[#3a9e75]/10 border border-[#3a9e75]/20 text-[#3a9e75]/80 font-mono">
-            Optimised · {item._category}
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-[9px] font-bold tracking-[0.12em] uppercase px-2 py-0.5 rounded-full bg-white/[0.06] border border-white/10 text-white/40 font-mono">
+            AI · {item._category || item.tag}
           </span>
           {item.material && (
-            <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[#3a9e75]/10 border border-[#3a9e75]/20 text-[#3a9e75]/70 font-mono">
+            <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[#3a9e75]/10 border border-[#3a9e75]/20 text-[#3a9e75]/80 font-mono">
               {item.material}
             </span>
           )}
-          <div className="ml-auto flex items-center gap-1.5">
-            <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#e05a3a]/10 border border-[#e05a3a]/20 text-[#e05a3a]/70 font-mono">
-              Cost {item.cost}/10
-            </span>
-            <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#3a9e75]/10 border border-[#3a9e75]/20 text-[#3a9e75]/70 font-mono">
-              Impact {item.impact}/10
-            </span>
-          </div>
         </div>
-        <p className="text-sm leading-relaxed text-white/70">{item.action}</p>
-        {item.logic && (
-          <p className="mt-3 text-xs leading-relaxed text-[#3a9e75]/50 italic border-l-2 border-[#3a9e75]/20 pl-3">
-            {item.logic}
-          </p>
-        )}
+        <p className="text-sm leading-relaxed text-white/60">{item.action || item.advice}</p>
       </div>
     </motion.div>
+  </GlowingBorderWrapper>
+);
+
+// ─── Updated OptimizedCard ───────────────────────────────────────────────────
+
+const OptimizedCard = ({ item }) => {
+  const Icon = stratIcon(item._category || '');
+  return (
+    <GlowingBorderWrapper conicGradient="conic-gradient(from 0deg, #3a9e75, #6EE7B7, #3a9e75, #6EE7B7, #3a9e75)"> {/* Green gradient */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ y: -2 }}
+        className="flex items-start gap-4 h-full rounded-xl p-5 relative overflow-hidden bg-[#3a9e75]/[0.05]" // h-full added, border removed
+      >
+        <div className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-lg bg-[#3a9e75]/10 border border-[#3a9e75]/20">
+          <Icon size={14} className="text-[#3a9e75]" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center flex-wrap gap-2 mb-2">
+            <span className="text-[9px] font-bold tracking-[0.12em] uppercase px-2 py-0.5 rounded-full bg-[#3a9e75]/10 border border-[#3a9e75]/20 text-[#3a9e75]/80 font-mono">
+              Optimised · {item._category}
+            </span>
+            {item.material && (
+              <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-0.5 rounded-full bg-[#3a9e75]/10 border border-[#3a9e75]/20 text-[#3a9e75]/70 font-mono">
+                {item.material}
+              </span>
+            )}
+            <div className="ml-auto flex items-center gap-1.5">
+              <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#e05a3a]/10 border border-[#e05a3a]/20 text-[#e05a3a]/70 font-mono">
+                Cost {item.cost}/10
+              </span>
+              <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#3a9e75]/10 border border-[#3a9e75]/20 text-[#3a9e75]/70 font-mono">
+                Impact {item.impact}/10
+              </span>
+            </div>
+          </div>
+          <p className="text-sm leading-relaxed text-white/70">{item.action}</p>
+          {item.logic && (
+            <p className="mt-3 text-xs leading-relaxed text-[#3a9e75]/50 italic border-l-2 border-[#3a9e75]/20 pl-3">
+              {item.logic}
+            </p>
+          )}
+        </div>
+      </motion.div>
+    </GlowingBorderWrapper>
   );
 };
-
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
 const Footer = ({ bizName }) => (
@@ -507,6 +597,10 @@ export default function App() {
           0%   { transform: translateX(0); }
           100% { transform: translateX(-50%); }
         }
+        @keyframes vp-spin {
+        0%   { transform: translate(-50%, -50%) rotate(0deg); }
+        100% { transform: translate(-50%, -50%) rotate(360deg); }
+      }
       `}</style>
 
       <AnimatePresence>
