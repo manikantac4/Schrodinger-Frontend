@@ -4,6 +4,8 @@ import HeroBackground from "./herobackground.jsx";
 import { useNavigate } from "react-router-dom";
 import MarketTicker from "./marketicker";
 import Problem from "./problem.jsx";
+import Demo from "../components/demovideo.jsx";
+
 
 /* ── Floating glass data card — desktop only ── */
 function DataCard({ children, className = "", style = {}, delay = 0 }) {
@@ -34,6 +36,7 @@ function DataCard({ children, className = "", style = {}, delay = 0 }) {
 export default function HeroPage() {
   const [phase, setPhase] = useState(0);
   const navigate = useNavigate();
+  const 
 
   useEffect(() => {
     const timers = [
@@ -263,7 +266,7 @@ export default function HeroPage() {
             </button>
 
             <button
-            onClick={() => navigate("/DemoVedioSection")}
+            onClick={() => navigate("/Demo")}
               className="cta-demo w-full sm:w-auto group flex items-center justify-center gap-3 px-7 sm:px-8 py-3.5 sm:py-4 rounded-full font-semibold text-sm"
               style={{
                 background: "rgba(255,255,255,0.06)",
