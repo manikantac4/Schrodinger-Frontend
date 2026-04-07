@@ -36,7 +36,6 @@ function DataCard({ children, className = "", style = {}, delay = 0 }) {
 export default function HeroPage() {
   const [phase, setPhase] = useState(0);
   const navigate = useNavigate();
-  const 
 
   useEffect(() => {
     const timers = [
