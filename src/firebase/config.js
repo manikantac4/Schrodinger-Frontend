@@ -2,13 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCpDV-efWcV0NrwIqPpuLw6ho1xT8x03Ak",
-  authDomain: "schrodinermission.firebaseapp.com",
-  projectId: "schrodinermission",
-  storageBucket: "schrodinermission.firebasestorage.app",
-  messagingSenderId: "676104232272",
-  appId: "1:676104232272:web:dc27be1f70bf3afcfae055",
-  measurementId: "G-NM6FMD6RZ8"
+  apiKey: "AIzaSyBdsQSwVhmOm9BI-H0svP3UxLIhJYjQyyc",
+  authDomain: "sentinel-1f5e7.firebaseapp.com",
+  projectId: "sentinel-1f5e7",
+  storageBucket: "sentinel-1f5e7.firebasestorage.app",
+  messagingSenderId: "660774594212",
+  appId: "1:660774594212:web:df4eae810e01146f206831",
+  measurementId: "G-JQPPBBQZF8"
 };
 
 const app = initializeApp(firebaseConfig);
