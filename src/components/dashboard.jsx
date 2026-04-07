@@ -1,3 +1,9 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+// @ts-nocheck
+
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import {
@@ -16,32 +22,10 @@ import {
   Link as LinkIcon,
   DollarSign,
   Settings,
-  Loader2,
-  LogOut,
-  User,
-  LayoutDashboard,
-  X
+  Loader2
 } from 'lucide-react';
-
 import API from '../services/service';
 import { getAuth, onAuthStateChanged } from "firebase/auth";
-// ─── Animations ───────────────────────────────────────────────────────────────
-
-const container = {
-  hidden: { opacity: 0 },
-  visible: { opacity: 1, transition: { staggerChildren: 0.08 } }
-};
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }
-};
-
-const fadeLeft = {
-  hidden: { opacity: 0, x: -20 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } }
-};
-
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function newsImpact(category = '') {
@@ -61,17 +45,19 @@ function stratIcon(category = '') {
 
 function flattenOptimized(optimized = {}) {
   const out = [];
-  const push = (arr = [], cat) => arr.forEach(s => out.push({ ...s, _category: cat }));
-  push(optimized.priceStrategy, 'Price');
-  push(optimized.productStrategy, 'Product');
-  push(optimized.logisticsStrategy, 'Logistics');
-  push(optimized.rawMaterialStrategy, 'Materials');
+  const push = (arr = [], cat) =>
+    arr.forEach(s => out.push({ ...s, _category: cat }));
+  push(optimized.priceStrategy,               'Price');
+  push(optimized.productStrategy,             'Product');
+  push(optimized.logisticsStrategy,           'Logistics');
+  push(optimized.rawMaterialStrategy,         'Materials');
   push(optimized.generalStrategicSuggestions, 'General');
   return out;
 }
 
 function buildImpacts(analysis = {}, events = {}) {
   const items = [];
+
   if (analysis.riskLevel) {
     items.push({
       id: 'risk',
@@ -83,6 +69,7 @@ function buildImpacts(analysis = {}, events = {}) {
       label: 'Risk Level'
     });
   }
+
   (events.weather || []).forEach((w, i) => {
     items.push({
       id: `weather-${i}`,
@@ -94,6 +81,7 @@ function buildImpacts(analysis = {}, events = {}) {
       label: 'Weather Alert'
     });
   });
+
   (analysis.generalStrategicSuggestions || [])
     .filter(s => ['Workforce', 'Financial'].includes(s.category))
     .forEach((s, i) => {
@@ -107,378 +95,189 @@ function buildImpacts(analysis = {}, events = {}) {
         label: s.category
       });
     });
-  return items.slice(0, 6);
+
+  return items;
 }
 
-// ─── Loading Screen ────────────────────────────────────────────────────────────
+// ─── Components ───────────────────────────────────────────────────────────────
 
-const LOADING_MESSAGES = [
-  'Initializing Intelligence...',
-  'Analyzing Global Signals...',
-  'Processing Market Data...',
-  'Generating Insights...',
-  'Calibrating Risk Models...',
-  'Almost Ready...'
-];
-
-const LoadingScreen = ({ onComplete }) => {
-  const [progress, setProgress] = useState(0);
-  const [msgIndex, setMsgIndex] = useState(0);
-  const [fadeOut, setFadeOut] = useState(false);
+const LoadingScreen = () => {
+  const [textIdx, setTextIdx] = useState(0);
+  const texts = ["Initializing Intelligence...", "Analyzing Global Signals...", "Generating Insights..."];
 
   useEffect(() => {
-    const duration = 2800;
-    const interval = 30;
-    const steps = duration / interval;
-    let current = 0;
-
-    const timer = setInterval(() => {
-      current++;
-      const raw = current / steps;
-      // Ease-out curve
-      const eased = 1 - Math.pow(1 - raw, 2.5);
-      setProgress(Math.min(eased * 100, 100));
-      const msgStep = Math.floor((current / steps) * (LOADING_MESSAGES.length - 1));
-      setMsgIndex(Math.min(msgStep, LOADING_MESSAGES.length - 1));
-      if (current >= steps) {
-        clearInterval(timer);
-        setTimeout(() => {
-          setFadeOut(true);
-          setTimeout(onComplete, 600);
-        }, 200);
-      }
-    }, interval);
-
-    return () => clearInterval(timer);
-  }, [onComplete]);
+    const interval = setInterval(() => {
+      setTextIdx(i => (i + 1) % texts.length);
+    }, 800);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <motion.div
       initial={{ opacity: 1 }}
-      animate={{ opacity: fadeOut ? 0 : 1 }}
-      transition={{ duration: 0.6 }}
-      style={{
-        position: 'fixed', inset: 0, zIndex: 9999,
-        background: '#080A0C',
-        display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        gap: 0
-      }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.5 }}
+      className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#080A0C]"
     >
-      {/* Ambient glows */}
-      <div style={{ position: 'absolute', top: '20%', left: '30%', width: '40vw', height: '40vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,107,53,0.08) 0%, transparent 70%)', pointerEvents: 'none' }} />
-      <div style={{ position: 'absolute', bottom: '20%', right: '30%', width: '35vw', height: '35vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,200,66,0.06) 0%, transparent 70%)', pointerEvents: 'none' }} />
-
-      {/* Energy ring */}
-      <div style={{ position: 'relative', width: 120, height: 120, marginBottom: 40 }}>
-        <svg width="120" height="120" style={{ position: 'absolute', inset: 0 }}>
-          {/* Track */}
-          <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
-          {/* Progress arc */}
-          <circle
-            cx="60" cy="60" r="52"
-            fill="none"
-            stroke="url(#energyGrad)"
-            strokeWidth="3"
-            strokeLinecap="round"
-            strokeDasharray={`${2 * Math.PI * 52}`}
-            strokeDashoffset={`${2 * Math.PI * 52 * (1 - progress / 100)}`}
-            transform="rotate(-90 60 60)"
-            style={{ transition: 'stroke-dashoffset 0.03s linear' }}
-          />
-          <defs>
-            <linearGradient id="energyGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" stopColor="#FF6B35" />
-              <stop offset="100%" stopColor="#F5C842" />
-            </linearGradient>
-          </defs>
-        </svg>
-
-        {/* Center logo */}
-        <div style={{
-          position: 'absolute', inset: 0,
-          display: 'flex', flexDirection: 'column',
-          alignItems: 'center', justifyContent: 'center', gap: 2
-        }}>
-          <span style={{
-            fontFamily: '"DM Mono", monospace',
-            fontSize: 11, fontWeight: 500,
-            letterSpacing: '0.15em',
-            background: 'linear-gradient(135deg, #FF6B35, #F5C842)',
-            WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent'
-          }}>SNT</span>
-          <span style={{ fontSize: 11, fontWeight: 600, color: 'rgba(255,255,255,0.5)', fontFamily: '"DM Mono", monospace' }}>
-            {Math.round(progress)}%
-          </span>
-        </div>
+      <div className="relative flex items-center justify-center">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="w-24 h-24 rounded-full border-t-4 border-b-4 border-[#FF6B35] shadow-[0_0_30px_rgba(255,107,53,0.5)]"
+        />
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.6, 0.3] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+          className="absolute w-16 h-16 rounded-full bg-gradient-to-tr from-[#FF6B35] to-[#F5C842] blur-xl"
+        />
       </div>
-
-      {/* Brand name */}
-      <div style={{ marginBottom: 20, textAlign: 'center' }}>
-        <h1 style={{
-          fontFamily: '"Playfair Display", serif',
-          fontSize: 36, fontWeight: 700,
-          letterSpacing: '-0.01em',
-          background: 'linear-gradient(135deg, #FFFFFF 40%, rgba(255,255,255,0.5))',
-          WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-          margin: 0
-        }}>SENTINEL</h1>
-        <p style={{ margin: '6px 0 0', fontFamily: '"DM Mono", monospace', fontSize: 10, letterSpacing: '0.18em', color: 'rgba(255,255,255,0.25)', textTransform: 'uppercase' }}>
-          Business Intelligence
-        </p>
+      <div className="mt-12 h-6 overflow-hidden relative w-64 text-center">
+        <AnimatePresence mode="wait">
+          <motion.p
+            key={textIdx}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3 }}
+            className="text-[#F5C842] font-mono text-xs tracking-[0.2em] uppercase absolute w-full"
+          >
+            {texts[textIdx]}
+          </motion.p>
+        </AnimatePresence>
       </div>
-
-      {/* Progress bar */}
-      <div style={{ width: 280, height: 2, background: 'rgba(255,255,255,0.06)', borderRadius: 99, overflow: 'hidden', marginBottom: 16 }}>
-        <div style={{
-          height: '100%',
-          width: `${progress}%`,
-          background: 'linear-gradient(90deg, #FF6B35, #F5C842)',
-          borderRadius: 99,
-          transition: 'width 0.03s linear'
-        }} />
-      </div>
-
-      {/* Message */}
-      <AnimatePresence mode="wait">
-        <motion.p
-          key={msgIndex}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.3 }}
-          style={{ fontFamily: '"DM Mono", monospace', fontSize: 11, color: 'rgba(255,255,255,0.35)', letterSpacing: '0.08em', margin: 0 }}
-        >
-          {LOADING_MESSAGES[msgIndex]}
-        </motion.p>
-      </AnimatePresence>
     </motion.div>
   );
 };
 
-// ─── Navbar ────────────────────────────────────────────────────────────────────
+const Navbar = ({ user, initials }) => (
+  <nav className="fixed top-0 left-0 right-0 h-16 bg-[#080A0C]/80 backdrop-blur-md border-b border-white/10 z-40 px-6 flex items-center justify-between">
+    {/* Left page border accent */}
+    <div className="absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b from-[#FF6B35] via-[#F5C842] to-transparent" />
+    <div className="flex items-center gap-3">
+      <div className="w-8 h-8 rounded bg-gradient-to-br from-[#FF6B35] to-[#F5C842] flex items-center justify-center font-bold text-black">
+        S
+      </div>
+      <span className="font-bold tracking-widest text-white font-serif">SENTINEL</span>
+    </div>
+    <div className="text-white/50 font-mono text-xs hidden md:block tracking-[0.2em]">
+      INTELLIGENCE DASHBOARD
+    </div>
+    <div className="flex items-center gap-3 cursor-pointer group">
+      <div className="text-right hidden sm:block">
+        <div className="text-sm font-semibold text-white/90">{user?.name || 'User'}</div>
+        <div className="text-[10px] text-white/40 uppercase tracking-widest group-hover:text-[#F5C842] transition-colors">View Profile</div>
+      </div>
+      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#FF6B35] to-[#F5C842] flex items-center justify-center text-black font-bold shadow-[0_0_15px_rgba(255,107,53,0.3)]">
+        {initials || 'U'}
+      </div>
+      <ChevronDown size={14} className="text-white/40" />
+    </div>
+  </nav>
+);
 
-const Navbar = ({ user, initials, activePage, setActivePage }) => {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropRef = useRef(null);
-
-  useEffect(() => {
-    const handler = (e) => { if (dropRef.current && !dropRef.current.contains(e.target)) setDropdownOpen(false); };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'impacts', label: 'Impacts', icon: Zap },
-    { id: 'suggestions', label: 'Suggestions', icon: Lightbulb },
-  ];
+const StatCard = ({ label, value, index }) => {
+  const isOrange = index % 2 === 0;
+  const shadowColor = isOrange ? 'rgba(255,107,53,0.25)' : 'rgba(245,200,66,0.25)';
+  const accentColor = isOrange ? '#FF6B35' : '#F5C842';
 
   return (
-    <div style={{
-      position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-      height: 60,
-      background: 'rgba(8,10,12,0.85)',
-      backdropFilter: 'blur(20px)',
-      borderBottom: '1px solid rgba(255,255,255,0.06)',
-      display: 'flex', alignItems: 'center',
-      padding: '0 clamp(16px, 4vw, 48px)',
-      gap: 0
-    }}>
-      {/* Left: Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flex: '0 0 auto' }}>
-        <div style={{
-          width: 28, height: 28, borderRadius: 8,
-          background: 'linear-gradient(135deg, #FF6B35, #F5C842)',
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <span style={{ fontFamily: '"DM Mono", monospace', fontSize: 9, fontWeight: 700, color: '#080A0C', letterSpacing: '0.05em' }}>SNT</span>
-        </div>
-        <span style={{ fontFamily: '"Playfair Display", serif', fontSize: 16, fontWeight: 600, color: '#fff', letterSpacing: '-0.01em' }}>SENTINEL</span>
-      </div>
-
-      {/* Center: Nav */}
-      <div style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: 4 }}>
-        {navItems.map(({ id, label, icon: Icon }) => (
-          <button
-            key={id}
-            onClick={() => setActivePage(id)}
-            style={{
-              display: 'flex', alignItems: 'center', gap: 7,
-              padding: '6px 14px', borderRadius: 10, border: 'none',
-              background: activePage === id ? 'rgba(255,255,255,0.07)' : 'transparent',
-              color: activePage === id ? '#fff' : 'rgba(255,255,255,0.45)',
-              cursor: 'pointer', fontSize: 13, fontWeight: 500,
-              fontFamily: '"DM Sans", sans-serif',
-              transition: 'all 0.2s',
-              position: 'relative'
-            }}
-          >
-            <Icon size={14} />
-            {label}
-            {activePage === id && (
-              <motion.div
-                layoutId="navIndicator"
-                style={{
-                  position: 'absolute', bottom: -1, left: 8, right: 8, height: 1,
-                  background: 'linear-gradient(90deg, #FF6B35, #F5C842)',
-                  borderRadius: 99
-                }}
-              />
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Right: Profile */}
-      <div style={{ position: 'relative', flex: '0 0 auto' }} ref={dropRef}>
-        <button
-          onClick={() => setDropdownOpen(v => !v)}
-          style={{
-            display: 'flex', alignItems: 'center', gap: 10,
-            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 12, padding: '5px 12px 5px 5px',
-            cursor: 'pointer', color: '#fff'
-          }}
-        >
-          <div style={{
-            width: 30, height: 30, borderRadius: 8,
-            background: 'linear-gradient(135deg, #FF6B35, #F5C842)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: 11, fontWeight: 700, color: '#080A0C'
-          }}>{initials || 'U'}</div>
-          <span style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.85)', fontFamily: '"DM Sans", sans-serif' }}>
-            {(user.name || '').split(' ')[0] || 'User'}
-          </span>
-          <ChevronDown size={13} style={{ color: 'rgba(255,255,255,0.3)', transition: 'transform 0.2s', transform: dropdownOpen ? 'rotate(180deg)' : 'none' }} />
-        </button>
-
-        <AnimatePresence>
-          {dropdownOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 8, scale: 0.96 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 8, scale: 0.96 }}
-              transition={{ duration: 0.2 }}
-              style={{
-                position: 'absolute', top: 'calc(100% + 8px)', right: 0,
-                width: 180,
-                background: 'rgba(16,18,22,0.98)',
-                border: '1px solid rgba(255,255,255,0.1)',
-                borderRadius: 14,
-                padding: 6,
-                boxShadow: '0 20px 60px rgba(0,0,0,0.5)'
-              }}
-            >
-              {[{ icon: User, label: 'View Profile' }, { icon: LogOut, label: 'Logout', danger: true }].map(({ icon: Icon, label, danger }) => (
-                <button
-                  key={label}
-                  style={{
-                    width: '100%', display: 'flex', alignItems: 'center', gap: 10,
-                    padding: '9px 12px', borderRadius: 9, border: 'none',
-                    background: 'transparent',
-                    color: danger ? '#FF6B35' : 'rgba(255,255,255,0.7)',
-                    cursor: 'pointer', fontSize: 13, fontWeight: 400,
-                    fontFamily: '"DM Sans", sans-serif',
-                    textAlign: 'left', transition: 'background 0.15s'
-                  }}
-                  onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.05)'}
-                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                >
-                  <Icon size={14} />
-                  {label}
-                </button>
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </div>
+    <motion.div
+      whileHover={{ y: -4 }}
+      className="relative flex flex-col gap-1 px-5 py-5 rounded-2xl bg-white/5 border border-white/10 overflow-hidden"
+      style={{ boxShadow: `0 8px 24px -8px ${shadowColor}` }}
+    >
+      <div className="absolute bottom-0 left-0 right-0 h-1" style={{ background: accentColor }} />
+      <span className="text-[10px] font-semibold tracking-widest uppercase text-white/40 font-mono">{label}</span>
+      <span className="text-2xl font-bold text-white font-serif">{value}</span>
+    </motion.div>
   );
 };
 
-// ─── Section Label ─────────────────────────────────────────────────────────────
-
-const SectionLabel = ({ icon: Icon, label, accent = '#F5C842' }) => (
-  <motion.div
-    initial={{ opacity: 0, x: -16 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ duration: 0.5 }}
-    style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 28 }}
-  >
-    <div style={{
-      display: 'flex', alignItems: 'center', justifyContent: 'center',
-      width: 32, height: 32, borderRadius: 10,
-      background: `${accent}1A`, border: `1px solid ${accent}30`
-    }}>
-      <Icon size={15} style={{ color: accent }} />
-    </div>
-    <span style={{
-      fontSize: 11, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase',
-      color: 'rgba(255,255,255,0.45)', fontFamily: '"DM Mono", "Fira Mono", monospace'
-    }}>{label}</span>
-    <div style={{ flex: 1, height: 1, background: 'linear-gradient(to right, rgba(255,255,255,0.06), transparent)' }} />
-  </motion.div>
-);
-
-// ─── News Ticker ──────────────────────────────────────────────────────────────
+// ─── News Ticker (improved) ────────────────────────────────────────────────────
 
 const NewsTicker = ({ newsItems }) => {
-  const trackRef = useRef(null);
   const [isPaused, setIsPaused] = useState(false);
   const [hoveredId, setHoveredId] = useState(null);
 
-  // Duplicate for seamless loop
+  if (!newsItems || newsItems.length === 0) return null;
+
   const doubled = [...newsItems, ...newsItems];
 
   return (
-    <section style={{ marginBottom: 48 }}>
-      <SectionLabel icon={Newspaper} label="Live News Feed" accent="#F5C842" />
-      <div style={{ position: 'relative', overflow: 'hidden' }}>
+    <section className="mb-12">
+      {/* Section label */}
+      <div className="flex items-center gap-2 mb-4">
+        <Newspaper size={14} className="text-[#F5C842]" />
+        <span className="text-[10px] font-semibold tracking-[0.2em] uppercase text-[#F5C842] font-mono">Live News Feed</span>
+        <div className="flex-1 h-px bg-gradient-to-r from-[#F5C842]/30 to-transparent ml-2" />
+        <span className="text-[9px] font-mono text-white/20 uppercase tracking-widest">Hover to pause</span>
+      </div>
+
+      <div
+        className="relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.02]"
+        style={{ padding: '16px 0' }}
+      >
         {/* Edge fades */}
-        <div style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 80, background: 'linear-gradient(to right, #080A0C, transparent)', zIndex: 2, pointerEvents: 'none' }} />
-        <div style={{ position: 'absolute', right: 0, top: 0, bottom: 0, width: 80, background: 'linear-gradient(to left, #080A0C, transparent)', zIndex: 2, pointerEvents: 'none' }} />
+        <div className="absolute left-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
+          style={{ background: 'linear-gradient(to right, #080A0C, transparent)' }} />
+        <div className="absolute right-0 top-0 bottom-0 w-24 z-10 pointer-events-none"
+          style={{ background: 'linear-gradient(to left, #080A0C, transparent)' }} />
+
+        {/* Live dot */}
+        <div className="absolute top-3 right-6 z-20 flex items-center gap-1.5">
+          <motion.div
+            animate={{ opacity: [1, 0.3, 1] }}
+            transition={{ duration: 1.4, repeat: Infinity }}
+            className="w-1.5 h-1.5 rounded-full bg-[#FF6B35]"
+          />
+          <span className="text-[8px] font-mono text-white/20 uppercase tracking-widest">Live</span>
+        </div>
 
         <div
-          ref={trackRef}
           style={{
-            display: 'flex', gap: 12,
-            animation: isPaused ? 'none' : 'tickerScroll 30s linear infinite',
-            width: 'max-content'
+            display: 'flex',
+            gap: 14,
+            animation: isPaused ? 'none' : 'tickerScroll 35s linear infinite',
+            width: 'max-content',
+            padding: '4px 14px',
           }}
           onMouseEnter={() => setIsPaused(true)}
           onMouseLeave={() => { setIsPaused(false); setHoveredId(null); }}
         >
           {doubled.map((item, idx) => {
             const impact = newsImpact(item.category);
-            const isHov = hoveredId === `${item._id}-${idx}`;
+            const uid = `${item._id || idx}-${idx}`;
+            const isHov = hoveredId === uid;
+
             return (
               <div
-                key={`${item._id}-${idx}`}
-                onMouseEnter={() => setHoveredId(`${item._id}-${idx}`)}
+                key={uid}
+                onMouseEnter={() => setHoveredId(uid)}
                 onMouseLeave={() => setHoveredId(null)}
                 style={{
                   flexShrink: 0,
-                  width: 260,
+                  width: window.innerWidth < 640 ? 220 : 270,
                   borderRadius: 20,
-                  padding: '16px 18px',
-                  background: isHov ? 'rgba(255,255,255,0.055)' : 'rgba(255,255,255,0.028)',
-                  border: `1px solid ${isHov ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.065)'}`,
+                  padding: '18px 20px',
+                  background: isHov ? 'rgba(255,255,255,0.058)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${isHov ? 'rgba(255,255,255,0.13)' : 'rgba(255,255,255,0.07)'}`,
                   cursor: 'pointer',
                   transition: 'all 0.25s',
-                  transform: isHov ? 'translateY(-3px)' : 'none',
-                  position: 'relative', overflow: 'hidden'
+                  transform: isHov ? 'translateY(-4px)' : 'none',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  boxShadow: isHov ? '0 8px 32px rgba(0,0,0,0.25)' : 'none'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
                   <span style={{
                     fontSize: 9, fontWeight: 600, letterSpacing: '0.1em', textTransform: 'uppercase',
-                    padding: '3px 8px', borderRadius: 99,
-                    background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.09)',
+                    padding: '3px 9px', borderRadius: 99,
+                    background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)',
                     color: 'rgba(255,255,255,0.5)', fontFamily: '"DM Mono", monospace'
                   }}>{item.category || 'News'}</span>
                   <div style={{
-                    width: 24, height: 24, borderRadius: '50%',
+                    width: 26, height: 26, borderRadius: '50%',
                     background: impact === 'positive' ? 'rgba(245,200,66,0.12)' : 'rgba(255,107,53,0.12)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center'
                   }}>
@@ -488,554 +287,262 @@ const NewsTicker = ({ newsItems }) => {
                   </div>
                 </div>
                 <p style={{
-                  margin: 0, fontSize: 13, fontWeight: 600, lineHeight: 1.4,
+                  margin: 0, fontSize: 13, fontWeight: 600, lineHeight: 1.45,
                   color: 'rgba(255,255,255,0.88)',
                   fontFamily: '"Playfair Display", serif',
                   display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden'
                 }}>{item.title || item.headline}</p>
                 {item.source && (
-                  <span style={{ display: 'block', marginTop: 8, fontSize: 9, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)', fontFamily: '"DM Mono", monospace' }}>
+                  <span style={{
+                    display: 'block', marginTop: 10, fontSize: 9, letterSpacing: '0.12em',
+                    textTransform: 'uppercase', color: 'rgba(255,255,255,0.2)',
+                    fontFamily: '"DM Mono", monospace'
+                  }}>
                     {item.source}
                   </span>
                 )}
+                {/* Bottom shimmer bar */}
                 <div style={{
                   position: 'absolute', bottom: 0, left: 0, right: 0, height: 2,
                   background: impact === 'positive'
-                    ? 'linear-gradient(90deg, transparent, rgba(245,200,66,0.4), transparent)'
-                    : 'linear-gradient(90deg, transparent, rgba(255,107,53,0.4), transparent)'
+                    ? 'linear-gradient(90deg, transparent, rgba(245,200,66,0.45), transparent)'
+                    : 'linear-gradient(90deg, transparent, rgba(255,107,53,0.45), transparent)'
                 }} />
               </div>
             );
           })}
         </div>
       </div>
-
-      <style>{`
-        @keyframes tickerScroll {
-          0% { transform: translateX(0); }
-          100% { transform: translateX(-50%); }
-        }
-      `}</style>
     </section>
   );
 };
 
-// ─── Impact Wheel ──────────────────────────────────────────────────────────────
-
-const ImpactWheel = ({ impactItems, riskLevel }) => {
-  const [hoveredIdx, setHoveredIdx] = useState(null);
-  const [rotation, setRotation] = useState(0);
-  const animRef = useRef(null);
-  const rotRef = useRef(0);
-
-  useEffect(() => {
-    let paused = false;
-    const animate = () => {
-      if (!paused) {
-        rotRef.current += 0.12;
-        setRotation(rotRef.current);
-      }
-      animRef.current = requestAnimationFrame(animate);
-    };
-    animRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animRef.current);
-  }, []);
-
-  const pause = () => { /* handled by hoveredIdx */ };
-
-  const n = impactItems.length || 1;
-  const R = 180; // orbit radius
-  const CX = 300, CY = 280; // center
-
-  const riskColor = riskLevel === 'High' ? '#FF6B35' : riskLevel === 'Medium' ? '#F5C842' : '#6EE7B7';
+const ImpactWheel = ({ impacts }) => {
+  if (!impacts || impacts.length === 0) return <p className="text-white/40 text-center py-12">No impact data available.</p>;
 
   return (
-    <div style={{ position: 'relative', width: '100%' }}>
-      <svg
-        width="100%" viewBox={`0 0 600 560`}
-        style={{ display: 'block', overflow: 'visible' }}
+    <div className="relative w-full max-w-[90vw] md:max-w-[700px] aspect-square mx-auto flex items-center justify-center py-12">
+      <motion.div
+        className="absolute z-20 w-32 h-32 rounded-full bg-gradient-to-br from-[#FF6B35] to-[#F5C842] flex items-center justify-center shadow-[0_0_40px_rgba(255,107,53,0.4)]"
+        animate={{ scale: [1, 1.05, 1] }}
+        transition={{ duration: 3, repeat: Infinity }}
       >
-        {/* Orbit rings */}
-        <circle cx={CX} cy={CY} r={R} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="1" strokeDasharray="4 6" />
-        <circle cx={CX} cy={CY} r={R * 0.65} fill="none" stroke="rgba(255,255,255,0.03)" strokeWidth="1" />
+        <div className="w-28 h-28 rounded-full bg-[#080A0C] flex flex-col items-center justify-center border border-white/10">
+          <AlertTriangle size={24} className="text-[#FF6B35] mb-1" />
+          <span className="font-bold text-white text-center leading-tight text-sm font-serif">Risk<br />Core</span>
+        </div>
+      </motion.div>
 
-        {/* Center glow */}
-        <circle cx={CX} cy={CY} r={68} fill={`${riskColor}10`} stroke={`${riskColor}20`} strokeWidth="1" />
-        <circle cx={CX} cy={CY} r={52} fill={`${riskColor}15`} stroke={`${riskColor}30`} strokeWidth="1" />
+      <motion.div
+        className="absolute inset-0 z-10"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 60, repeat: Infinity, ease: "linear" }}
+      >
+        {impacts.map((impact, i) => {
+          const getAngle = (i, total) => {
+  // 4 → square (0,90,180,270)
+  if (total === 4) return i * 90;
 
-        {/* Center label */}
-        <text x={CX} y={CY - 10} textAnchor="middle" dominantBaseline="middle"
-          style={{ fill: riskColor, fontSize: 12, fontWeight: 700, fontFamily: '"DM Mono", monospace', letterSpacing: '0.05em', textTransform: 'uppercase' }}>
-          RISK
-        </text>
-        <text x={CX} y={CY + 8} textAnchor="middle" dominantBaseline="middle"
-          style={{ fill: riskColor, fontSize: 20, fontWeight: 700, fontFamily: '"Playfair Display", serif' }}>
-          {riskLevel || '—'}
-        </text>
+  // 5 → star (skip pattern for star effect)
+  if (total === 5) return (i * 144) % 360;
 
-        {/* Spokes + cards */}
-        {impactItems.map((item, i) => {
-          const angleStep = (2 * Math.PI) / n;
-          const angle = angleStep * i + (rotation * Math.PI / 180);
-          const cx = CX + R * Math.cos(angle);
-          const cy = CY + R * Math.sin(angle);
-          const isHov = hoveredIdx === i;
-          const cardW = 130, cardH = 60;
+  // 6 → hexagon (60° each)
+  if (total === 6) return i * 60;
 
+  // default → circle
+  return (i / total) * 360;
+};
+          const Icon = impact.icon;
+          const angle = getAngle(i, impacts.length) - 90;
           return (
-            <g key={item.id}
-              onMouseEnter={() => setHoveredIdx(i)}
-              onMouseLeave={() => setHoveredIdx(null)}
-              style={{ cursor: 'pointer' }}
+            <div
+              key={i}
+              className="absolute top-1/2 left-1/2 w-[80%] md:w-[60%] origin-left flex items-center justify-end pr-8"
+              style={{ transform: `translateY(-50%) rotate(${angle}deg)` }}
             >
-              {/* Spoke */}
-              <line
-                x1={CX + 52 * Math.cos(angle)} y1={CY + 52 * Math.sin(angle)}
-                x2={cx - (cardW / 2) * Math.cos(angle)} y2={cy - (cardH / 2) * Math.sin(angle)}
-                stroke={isHov ? item.accent : 'rgba(255,255,255,0.08)'}
-                strokeWidth={isHov ? 1.5 : 0.8}
-                strokeDasharray={isHov ? 'none' : '3 4'}
-                style={{ transition: 'all 0.3s' }}
-              />
-              {/* Dot on spoke */}
-              <circle cx={cx} cy={cy} r={isHov ? 5 : 3}
-                fill={isHov ? item.accent : 'rgba(255,255,255,0.15)'}
-                style={{ transition: 'all 0.3s' }}
-              />
-              {/* Card */}
-              <foreignObject
-                x={cx - cardW / 2}
-                y={cy - cardH / 2}
-                width={cardW}
-                height={cardH}
+             <div
+  className="absolute left-10 w-[calc(100%-2.5rem)] h-[2px]"
+  style={{
+    background: `linear-gradient(to right, ${impact.accent}, transparent)`,
+    boxShadow: `0 0 8px ${impact.accent}80`
+  }}
+/>
+              <motion.div
+                className="relative z-30 w-40 md:w-56 p-4 rounded-2xl bg-[#080A0C] border border-white/10 shadow-xl group"
+                style={{ transform: `rotate(-${angle}deg)` }}
+                whileHover={{ scale: 1.05, borderColor: impact.accent }}
               >
-                <div xmlns="http://www.w3.org/1999/xhtml"
-                  style={{
-                    width: cardW, height: cardH,
-                    borderRadius: 12,
-                    background: isHov ? `${item.accent}18` : 'rgba(255,255,255,0.04)',
-                    border: `1px solid ${isHov ? item.accent + '40' : 'rgba(255,255,255,0.08)'}`,
-                    display: 'flex', flexDirection: 'column',
-                    alignItems: 'center', justifyContent: 'center',
-                    padding: '6px 10px',
-                    transition: 'all 0.3s',
-                    textAlign: 'center',
-                    transform: `rotate(${-rotation}deg)`,
-                    transformOrigin: '50% 50%'
-                  }}>
-                  <span style={{
-                    fontSize: 8, fontWeight: 700, letterSpacing: '0.1em',
-                    textTransform: 'uppercase', color: item.accent,
-                    fontFamily: '"DM Mono", monospace', lineHeight: 1.2
-                  }}>{item.label}</span>
-                  <span style={{
-                    fontSize: 10, fontWeight: 600, color: 'rgba(255,255,255,0.85)',
-                    fontFamily: '"DM Sans", sans-serif', lineHeight: 1.3, marginTop: 3
-                  }}>{item.title.length > 22 ? item.title.slice(0, 22) + '…' : item.title}</span>
+                <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity rounded-2xl pointer-events-none"
+                  style={{ background: `radial-gradient(circle at center, ${impact.accent}15 0%, transparent 70%)` }} />
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${impact.accent}20` }}>
+                    <Icon size={16} style={{ color: impact.accent }} />
+                  </div>
+                  <span className="text-xs font-bold text-white/90 truncate font-serif">{impact.title}</span>
                 </div>
-              </foreignObject>
-            </g>
+                <p className="text-[10px] text-white/50 line-clamp-3 leading-relaxed">{impact.explanation}</p>
+                <div className="mt-2 text-[8px] font-mono uppercase tracking-widest" style={{ color: impact.accent }}>
+                  {impact.label}
+                </div>
+              </motion.div>
+            </div>
           );
         })}
-      </svg>
-
-      {/* Hover detail panel */}
-      <AnimatePresence>
-        {hoveredIdx !== null && impactItems[hoveredIdx] && (
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.25 }}
-            style={{
-              position: 'absolute', bottom: 20, left: '50%',
-              transform: 'translateX(-50%)',
-              width: 340,
-              borderRadius: 16,
-              padding: '16px 20px',
-              background: 'rgba(12,14,18,0.96)',
-              border: `1px solid ${impactItems[hoveredIdx].accent}30`,
-              boxShadow: `0 8px 40px ${impactItems[hoveredIdx].accent}18`,
-              zIndex: 10,
-              pointerEvents: 'none'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-              <span style={{
-                fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
-                color: impactItems[hoveredIdx].accent, fontFamily: '"DM Mono", monospace',
-                padding: '3px 8px', borderRadius: 99,
-                background: `${impactItems[hoveredIdx].accent}15`,
-                border: `1px solid ${impactItems[hoveredIdx].accent}30`
-              }}>{impactItems[hoveredIdx].label}</span>
-              <span style={{ fontSize: 9, color: 'rgba(255,255,255,0.3)', fontFamily: '"DM Mono", monospace', letterSpacing: '0.08em' }}>
-                SEVERITY: {impactItems[hoveredIdx].severity?.toUpperCase()}
-              </span>
-            </div>
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 600, color: 'rgba(255,255,255,0.9)', fontFamily: '"Playfair Display", serif', lineHeight: 1.4, marginBottom: 6 }}>
-              {impactItems[hoveredIdx].title}
-            </p>
-            <p style={{ margin: 0, fontSize: 12, color: 'rgba(255,255,255,0.45)', lineHeight: 1.65 }}>
-              {impactItems[hoveredIdx].explanation}
-            </p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </motion.div>
     </div>
   );
 };
 
-// ─── Impact Card (list fallback) ───────────────────────────────────────────────
+const SuggestionCard = ({ item }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 10 }}
+    animate={{ opacity: 1, y: 0 }}
+    whileHover={{ scale: 1.01 }}
+    className="flex items-start gap-5 rounded-3xl p-6 relative overflow-hidden group bg-white/5 border border-white/10"
+  >
+    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
+      style={{ background: 'radial-gradient(ellipse at top right, rgba(245,200,66,0.04), transparent 70%)' }} />
+    <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-2xl bg-[#F5C842]/10 border border-[#F5C842]/20">
+      <Sparkles size={16} className="text-[#F5C842]" />
+    </div>
+    <div className="relative z-10 flex-1 min-w-0">
+      <div className="flex items-center gap-2 mb-3">
+        <span className="text-[9px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full bg-gradient-to-r from-[#F5C842]/15 to-[#FF6B35]/15 border border-[#F5C842]/20 text-[#F5C842] font-mono">
+          AI · {item._category || item.tag}
+        </span>
+        {item.material && (
+          <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-full bg-[#6EE7B7]/10 border border-[#6EE7B7]/20 text-[#6EE7B7] font-mono">
+            {item.material}
+          </span>
+        )}
+      </div>
+      <p className="text-sm leading-relaxed text-white/70">{item.action || item.advice}</p>
+    </div>
+  </motion.div>
+);
 
-const ImpactCard = ({ item }) => {
-  const Icon = item.icon;
+const OptimizedCard = ({ item }) => {
+  const Icon = stratIcon(item._category || '');
   return (
     <motion.div
-      variants={fadeLeft}
-      whileHover={{ x: 4, transition: { duration: 0.18 } }}
-      style={{
-        display: 'flex', alignItems: 'flex-start', gap: 20,
-        borderRadius: 24, padding: 20, position: 'relative', overflow: 'hidden',
-        background: 'rgba(255,255,255,0.025)', border: '1px solid rgba(255,255,255,0.065)'
-      }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.01, y: -2 }}
+      className="flex items-start gap-5 rounded-3xl p-6 relative overflow-hidden group bg-[#6EE7B7]/5 border border-[#6EE7B7]/20"
     >
-      <div style={{
-        flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        borderRadius: 16, width: 44, height: 44,
-        background: `${item.accent}18`, border: `1px solid ${item.accent}28`
-      }}>
-        <Icon size={18} style={{ color: item.accent }} />
+      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity duration-500"
+        style={{ background: 'radial-gradient(ellipse at top left, rgba(110,231,183,0.07), transparent 70%)' }} />
+      <div className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full bg-gradient-to-b from-[#6EE7B7]/70 to-transparent" />
+      <div className="relative z-10 flex-shrink-0 flex items-center justify-center w-10 h-10 rounded-2xl bg-[#6EE7B7]/10 border border-[#6EE7B7]/30">
+        <Icon size={16} className="text-[#6EE7B7]" />
       </div>
-      <div style={{ flex: 1, minWidth: 0, paddingTop: 2 }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, justifyContent: 'space-between', marginBottom: 8 }}>
-          <h3 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: 'rgba(255,255,255,0.9)', fontFamily: '"Playfair Display", serif' }}>
-            {item.title}
-          </h3>
-          <span style={{
-            flexShrink: 0, fontSize: 9, fontWeight: 700, letterSpacing: '0.12em',
-            textTransform: 'uppercase', padding: '4px 10px', borderRadius: 99,
-            background: `${item.accent}18`, border: `1px solid ${item.accent}30`, color: item.accent,
-            fontFamily: '"DM Mono", monospace'
-          }}>{item.label}</span>
-        </div>
-        <p style={{ margin: 0, fontSize: 13, lineHeight: 1.65, color: 'rgba(255,255,255,0.42)' }}>
-          {item.explanation}
-        </p>
-      </div>
-      <div style={{
-        position: 'absolute', left: 0, top: 16, bottom: 16, width: 3, borderRadius: 99,
-        background: `linear-gradient(to bottom, ${item.accent}60, ${item.accent}00)`
-      }} />
-    </motion.div>
-  );
-};
-
-// ─── Suggestion Card ───────────────────────────────────────────────────────────
-
-const SuggestionCard = ({ item, optimized }) => {
-  const Icon = optimized ? stratIcon(item._category || '') : Sparkles;
-  const accent = optimized ? '#6EE7B7' : '#F5C842';
-
-  return (
-    <motion.div
-      variants={fadeUp}
-      whileHover={{ scale: 1.008, transition: { duration: 0.18 } }}
-      style={{
-        display: 'flex', alignItems: 'flex-start', gap: 20,
-        borderRadius: 24, padding: 24, position: 'relative', overflow: 'hidden',
-        background: optimized ? 'rgba(110,231,183,0.04)' : 'rgba(255,255,255,0.025)',
-        border: `1px solid ${optimized ? 'rgba(110,231,183,0.15)' : 'rgba(255,255,255,0.065)'}`
-      }}
-    >
-      <div style={{
-        flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-        width: 40, height: 40, borderRadius: 14,
-        background: `${accent}15`, border: `1px solid ${accent}28`
-      }}>
-        <Icon size={16} style={{ color: accent }} />
-      </div>
-
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 8, marginBottom: 12 }}>
-          <span style={{
-            fontSize: 9, fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
-            padding: '3px 10px', borderRadius: 99,
-            background: optimized ? 'rgba(110,231,183,0.12)' : 'linear-gradient(135deg, rgba(245,200,66,0.15), rgba(255,107,53,0.15))',
-            border: `1px solid ${accent}30`, color: accent,
-            fontFamily: '"DM Mono", monospace'
-          }}>{optimized ? `Optimised · ${item._category}` : `AI · ${item._category || item.tag}`}</span>
-
+      <div className="relative z-10 flex-1 min-w-0">
+        <div className="flex items-center flex-wrap gap-2 mb-3">
+          <span className="text-[9px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full bg-[#6EE7B7]/10 border border-[#6EE7B7]/30 text-[#6EE7B7] font-mono">
+            Optimised · {item._category}
+          </span>
           {item.material && (
-            <span style={{
-              fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase',
-              padding: '3px 8px', borderRadius: 99,
-              background: 'rgba(110,231,183,0.08)', border: '1px solid rgba(110,231,183,0.15)',
-              color: '#6EE7B7', fontFamily: '"DM Mono", monospace'
-            }}>{item.material}</span>
+            <span className="text-[9px] font-bold tracking-widest uppercase px-2 py-1 rounded-full bg-[#6EE7B7]/10 border border-[#6EE7B7]/20 text-[#6EE7B7] font-mono">
+              {item.material}
+            </span>
           )}
-
-          {optimized && (
-            <div style={{ marginLeft: 'auto', display: 'flex', gap: 6 }}>
-              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: 99, background: 'rgba(255,107,53,0.08)', border: '1px solid rgba(255,107,53,0.15)', color: 'rgba(255,107,53,0.8)', fontFamily: '"DM Mono", monospace' }}>
-                Cost {item.cost}/10
-              </span>
-              <span style={{ fontSize: 9, fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', padding: '3px 8px', borderRadius: 99, background: 'rgba(110,231,183,0.08)', border: '1px solid rgba(110,231,183,0.2)', color: '#6EE7B7', fontFamily: '"DM Mono", monospace' }}>
-                Impact {item.impact}/10
-              </span>
-            </div>
-          )}
+          <div className="ml-auto flex items-center gap-1.5">
+            <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-1 rounded-full bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35] font-mono">
+              Cost {item.cost}/10
+            </span>
+            <span className="text-[9px] font-bold tracking-wider uppercase px-2 py-1 rounded-full bg-[#6EE7B7]/10 border border-[#6EE7B7]/20 text-[#6EE7B7] font-mono">
+              Impact {item.impact}/10
+            </span>
+          </div>
         </div>
-
-        <p style={{ margin: 0, fontSize: 14, lineHeight: 1.7, color: 'rgba(255,255,255,0.72)' }}>
-          {item.action || item.advice}
-        </p>
-
-        {optimized && item.logic && (
-          <p style={{ margin: '8px 0 0', fontSize: 12, lineHeight: 1.6, color: 'rgba(110,231,183,0.55)', fontStyle: 'italic' }}>
+        <p className="text-sm leading-relaxed text-white/80">{item.action}</p>
+        {item.logic && (
+          <p className="mt-3 text-xs leading-relaxed text-[#6EE7B7]/60 italic border-l-2 border-[#6EE7B7]/30 pl-3">
             {item.logic}
           </p>
         )}
       </div>
-
-      {optimized && (
-        <div style={{
-          position: 'absolute', left: 0, top: 16, bottom: 16, width: 3, borderRadius: 99,
-          background: 'linear-gradient(to bottom, rgba(110,231,183,0.7), rgba(110,231,183,0))'
-        }} />
-      )}
     </motion.div>
   );
 };
 
-// ─── Stat Pill ─────────────────────────────────────────────────────────────────
+// ─── Page Border Frame ─────────────────────────────────────────────────────────
 
-const StatPill = ({ label, value, accent, shadow }) => (
-  <div style={{
-    display: 'flex', flexDirection: 'column', gap: 6,
-    padding: '18px 22px', borderRadius: 20,
-    background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)',
-    boxShadow: shadow ? `0 4px 30px ${shadow}` : 'none',
-    transition: 'box-shadow 0.3s'
-  }}>
-    <span style={{ fontSize: 10, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: '"DM Mono", monospace' }}>{label}</span>
-    <span style={{ fontSize: 22, fontWeight: 700, color: accent, fontFamily: '"Playfair Display", serif' }}>{value}</span>
-  </div>
+const PageBorderFrame = () => (
+  <>
+    {/* Left border */}
+    <div className="fixed left-0 top-0 bottom-0 w-[3px] z-30 pointer-events-none"
+      style={{ background: 'linear-gradient(to bottom, #FF6B35, #F5C842 40%, rgba(110,231,183,0.4) 80%, transparent)' }} />
+    {/* Right border */}
+    <div className="fixed right-0 top-0 bottom-0 w-[3px] z-30 pointer-events-none"
+      style={{ background: 'linear-gradient(to bottom, transparent, rgba(245,200,66,0.3) 40%, #FF6B35 80%, transparent)' }} />
+    {/* Top border */}
+    <div className="fixed top-0 left-0 right-0 h-[3px] z-30 pointer-events-none"
+      style={{ background: 'linear-gradient(to right, #FF6B35, #F5C842, #FF6B35)' }} />
+    {/* Bottom border */}
+    <div className="fixed bottom-0 left-0 right-0 h-[3px] z-30 pointer-events-none"
+      style={{ background: 'linear-gradient(to right, transparent, #FF6B35 30%, #F5C842 70%, transparent)' }} />
+    {/* Corner accents */}
+    <div className="fixed top-0 left-0 w-6 h-6 z-30 pointer-events-none border-t-2 border-l-2 border-[#FF6B35] rounded-tl-sm" />
+    <div className="fixed top-0 right-0 w-6 h-6 z-30 pointer-events-none border-t-2 border-r-2 border-[#F5C842] rounded-tr-sm" />
+    <div className="fixed bottom-0 left-0 w-6 h-6 z-30 pointer-events-none border-b-2 border-l-2 border-[#F5C842] rounded-bl-sm" />
+    <div className="fixed bottom-0 right-0 w-6 h-6 z-30 pointer-events-none border-b-2 border-r-2 border-[#FF6B35] rounded-br-sm" />
+  </>
 );
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-const Skeleton = ({ style = {} }) => (
-  <div style={{ borderRadius: 12, background: 'rgba(255,255,255,0.05)', animation: 'pulse 1.5s ease-in-out infinite', ...style }} />
-);
-
-// ─── Dashboard Page ────────────────────────────────────────────────────────────
-
-const DashboardPage = ({ data, newsItems, allStrategies, optStrategies, impactItems, analysis, user, bizName, firstName, initials, setActivePage }) => (
-  <motion.div
-    key="dashboard"
-    initial={{ opacity: 0, y: 16 }}
-    animate={{ opacity: 1, y: 0 }}
-    exit={{ opacity: 0, y: -16 }}
-    transition={{ duration: 0.4 }}
+// ─── Footer ───────────────────────────────────────────────────────────────────
+const Footer = ({ bizName }) => (
+  <footer
+    className="w-full border-t border-white/10 px-6 py-4 mt-12"
+    style={{ background: 'rgba(8,10,12,0.8)', backdropFilter: 'blur(10px)' }}
   >
-    {/* Welcome */}
-    <div style={{ marginBottom: 36 }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-        <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#F5C842', boxShadow: '0 0 6px #F5C842' }} />
-        <span style={{ fontSize: 11, fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase', color: 'rgba(255,255,255,0.35)', fontFamily: '"DM Mono", monospace' }}>
-          Live Intelligence · {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}
-        </span>
-      </div>
-      <h1 style={{
-        margin: 0, fontFamily: '"Playfair Display", serif',
-        fontSize: 'clamp(1.8rem, 4vw, 2.8rem)', fontWeight: 700,
-        color: '#fff', letterSpacing: '-0.01em', lineHeight: 1.15
-      }}>
-        Welcome back, <span style={{ color: '#F5C842' }}>{firstName}</span>{' '}
+    <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
       
-      </h1>
-      <p style={{ margin: '10px 0 0', fontSize: 15, color: 'rgba(255,255,255,0.42)', fontWeight: 300 }}>
-        Here's what's happening around {bizName} today
-      </p>
-    </div>
+      {/* Left */}
+      <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">
+        © {new Date().getFullYear()} Sentinel
+      </span>
 
-    {/* Stats Row */}
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 48 }}>
-      <StatPill label="News Items" value={`${newsItems.length} Today`} accent="#F5C842" shadow="rgba(255,107,53,0.08)" />
-      <StatPill label="Risk Level" value={analysis.riskLevel || '—'} accent="#FF6B35" shadow="rgba(245,200,66,0.06)" />
-      <StatPill label="Optimised" value={`${optStrategies.length} Ready`} accent="#6EE7B7" shadow="rgba(255,107,53,0.06)" />
-      <StatPill label="Suggestions" value={`${allStrategies.length} Total`} accent="#A78BFA" shadow="rgba(245,200,66,0.05)" />
-    </div>
+      {/* Center */}
+      <span className="text-[10px] font-mono text-white/30 uppercase tracking-widest">
+        {bizName}
+      </span>
 
-    {/* News Ticker */}
-    {newsItems.length > 0 && <NewsTicker newsItems={newsItems} />}
-
-    {/* Section nav buttons */}
-    <div style={{ display: 'flex', gap: 12, marginBottom: 48 }}>
-      {[
-        { id: 'impacts', label: '⚠️ View Impact Analysis', accent: '#FF6B35', bg: 'rgba(255,107,53,0.08)', border: 'rgba(255,107,53,0.2)' },
-        { id: 'suggestions', label: '💡 Explore AI Suggestions', accent: '#F5C842', bg: 'rgba(245,200,66,0.08)', border: 'rgba(245,200,66,0.2)' }
-      ].map(({ id, label, accent, bg, border }) => (
-        <button key={id} onClick={() => setActivePage(id)} style={{
-          flex: 1, padding: '16px 24px', borderRadius: 16,
-          background: bg, border: `1px solid ${border}`,
-          color: accent, fontSize: 14, fontWeight: 600,
-          fontFamily: '"DM Sans", sans-serif', cursor: 'pointer',
-          transition: 'all 0.2s', letterSpacing: '0.01em'
-        }}
-          onMouseEnter={e => { e.currentTarget.style.background = bg.replace('0.08', '0.13'); e.currentTarget.style.transform = 'translateY(-2px)'; }}
-          onMouseLeave={e => { e.currentTarget.style.background = bg; e.currentTarget.style.transform = 'none'; }}
-        >{label}</button>
-      ))}
-    </div>
-
-    {/* Footer */}
-    <div style={{ paddingTop: 24, borderTop: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between' }}>
-      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontFamily: '"DM Mono", monospace' }}>{bizName} · Intelligence Dashboard</span>
-      <span style={{ fontSize: 11, color: 'rgba(255,255,255,0.2)', fontFamily: '"DM Mono", monospace' }}>Powered by AI</span>
-    </div>
-  </motion.div>
-);
-
-// ─── Impacts Page ──────────────────────────────────────────────────────────────
-
-const ImpactsPage = ({ impactItems, analysis, setActivePage }) => (
-  <motion.div
-    key="impacts"
-    initial={{ opacity: 0, x: 30 }}
-    animate={{ opacity: 1, x: 0 }}
-    exit={{ opacity: 0, x: -30 }}
-    transition={{ duration: 0.4 }}
-  >
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 36 }}>
-      <div>
-        <h2 style={{ margin: 0, fontFamily: '"Playfair Display", serif', fontSize: 28, fontWeight: 700, color: '#fff' }}>Business Impacts</h2>
-        <p style={{ margin: '6px 0 0', fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>Risk assessment and impact analysis</p>
-      </div>
-      <button onClick={() => setActivePage('suggestions')} style={{
-        padding: '10px 20px', borderRadius: 12,
-        background: 'rgba(245,200,66,0.08)', border: '1px solid rgba(245,200,66,0.2)',
-        color: '#F5C842', fontSize: 13, fontWeight: 600,
-        fontFamily: '"DM Sans", sans-serif', cursor: 'pointer'
-      }}>View Suggestions →</button>
-    </div>
-
-    {/* Wheel */}
-    <div style={{ marginBottom: 40 }}>
-      <SectionLabel icon={Zap} label="Impact Wheel — Hover to Explore" accent="#FF6B35" />
-      <div style={{ borderRadius: 24, padding: 12, background: 'rgba(255,255,255,0.015)', border: '1px solid rgba(255,255,255,0.05)' }}>
-        {impactItems.length > 0
-          ? <ImpactWheel impactItems={impactItems} riskLevel={analysis.riskLevel} />
-          : <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: 40 }}>No impact data available.</p>}
-      </div>
-    </div>
-
-    {/* Impact Cards list */}
-    <SectionLabel icon={AlertTriangle} label="Impact Details" accent="#FF9F43" />
-    <motion.div variants={container} initial="hidden" animate="visible" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-      {impactItems.map(item => <ImpactCard key={item.id} item={item} />)}
-    </motion.div>
-  </motion.div>
-);
-
-// ─── Suggestions Page ──────────────────────────────────────────────────────────
-
-const SuggestionsPage = ({ allStrategies, optStrategies, setActivePage }) => {
-  const [showOptimized, setShowOptimized] = useState(false);
-  const items = showOptimized ? optStrategies : allStrategies;
-
-  return (
-    <motion.div
-      key="suggestions"
-      initial={{ opacity: 0, x: 30 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -30 }}
-      transition={{ duration: 0.4 }}
-    >
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 36 }}>
-        <div>
-          <h2 style={{ margin: 0, fontFamily: '"Playfair Display", serif', fontSize: 28, fontWeight: 700, color: '#fff' }}>
-            {showOptimized ? '⚛️ Optimised Strategies' : '💡 AI Suggestions'}
-          </h2>
-          <p style={{ margin: '6px 0 0', fontSize: 14, color: 'rgba(255,255,255,0.4)' }}>
-            {showOptimized ? 'Quantum-optimised recommendations with cost-impact analysis' : 'AI-generated strategic recommendations for your business'}
-          </p>
-        </div>
-        <button onClick={() => setActivePage('impacts')} style={{
-          padding: '10px 20px', borderRadius: 12,
-          background: 'rgba(255,107,53,0.08)', border: '1px solid rgba(255,107,53,0.2)',
-          color: '#FF6B35', fontSize: 13, fontWeight: 600,
-          fontFamily: '"DM Sans", sans-serif', cursor: 'pointer'
-        }}>View Impacts →</button>
-      </div>
-
-      {/* Toggle */}
-      <div style={{ display: 'flex', gap: 8, marginBottom: 36, padding: 6, borderRadius: 16, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', width: 'fit-content' }}>
-        {[
-          { val: false, label: '💡 AI Suggestions', accent: '#F5C842' },
-          { val: true, label: '⚛️ Quantum Optimised', accent: '#6EE7B7' }
-        ].map(({ val, label, accent }) => (
-          <button
-            key={String(val)}
-            onClick={() => setShowOptimized(val)}
-            style={{
-              padding: '9px 18px', borderRadius: 12, border: 'none',
-              background: showOptimized === val
-                ? (val ? 'rgba(110,231,183,0.12)' : 'rgba(245,200,66,0.12)')
-                : 'transparent',
-              color: showOptimized === val ? accent : 'rgba(255,255,255,0.4)',
-              fontSize: 13, fontWeight: 600,
-              fontFamily: '"DM Sans", sans-serif', cursor: 'pointer',
-              transition: 'all 0.25s',
-              border: showOptimized === val ? `1px solid ${accent}30` : '1px solid transparent'
-            }}
-          >{label}</button>
+      {/* Right */}
+      <div className="flex items-center gap-3">
+        {['Privacy', 'Terms'].map(item => (
+          <a
+            key={item}
+            href="#"
+            className="text-[10px] font-mono text-white/30 hover:text-[#F5C842] transition-colors uppercase tracking-widest"
+          >
+            {item}
+          </a>
         ))}
       </div>
 
-      {/* Cards */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={showOptimized ? 'opt' : 'ai'}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -12 }}
-          transition={{ duration: 0.3 }}
-          style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 14 }}
-        >
-          {items.length > 0
-            ? items.map((item, i) => (
-              <motion.div key={`${item.id || i}`} variants={fadeUp} initial="hidden" animate="visible" custom={i}>
-                <SuggestionCard item={item} optimized={showOptimized} />
-              </motion.div>
-            ))
-            : <p style={{ gridColumn: '1/-1', fontSize: 14, color: 'rgba(255,255,255,0.3)', textAlign: 'center', padding: 40 }}>No strategies available.</p>
-          }
-        </motion.div>
-      </AnimatePresence>
-    </motion.div>
-  );
-};
+    </div>
+  </footer>
+);
 
 // ─── Main App ──────────────────────────────────────────────────────────────────
 
-export default function Dashboard() {
+export default function App() {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [apiLoading, setApiLoading] = useState(true);
-  const [animDone, setAnimDone] = useState(false);
+  const [showLoadingScreen, setShowLoadingScreen] = useState(true);
   const [error, setError] = useState(null);
-  const [activePage, setActivePage] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState('impacts');
+  const [showOptimized, setShowOptimized] = useState(false);
 
- useEffect(() => {
+  useEffect(() => {
   const auth = getAuth();
 
-  // Wait for Firebase to confirm auth state before calling API
   const unsubscribe = onAuthStateChanged(auth, async (user) => {
     if (!user) {
-      // Not logged in — redirect to login
-      setError('You are not logged in. Please sign in first.');
-      setApiLoading(false);
+      setError("User not authenticated");
+      setLoading(false);
+      setShowLoadingScreen(false);
       return;
     }
 
@@ -1043,116 +550,187 @@ export default function Dashboard() {
       const res = await API.post('/businessAnalysis/analyze');
       setData(res.data);
     } catch (err) {
-      setError(err?.response?.data?.message || err.message || 'Failed to load dashboard.');
+      console.error("API Error:", err);
+      setError(err?.response?.data?.message || err.message);
     } finally {
-      setApiLoading(false);
+      setLoading(false);
+      setTimeout(() => setShowLoadingScreen(false), 2500);
     }
   });
 
-  // Cleanup listener on unmount
   return () => unsubscribe();
 }, []);
 
-  const handleLoadingComplete = () => {
-    setAnimDone(true);
-  };
-
-  // Show loading screen until BOTH the animation and API call are done
-  const showLoader = !animDone || apiLoading;
-
-  // Derive display values
-  const user = data?.user || {};
-  const business = data?.business || {};
-  const events = data?.events || {};
-  const analysis = data?.analysis || {};
+  const user      = data?.user        || {};
+  const business  = data?.business    || {};
+  const events    = data?.events      || {};
+  const analysis  = data?.analysis    || {};
   const optimized = data?.optimizedStrategies || {};
 
-  const newsItems = events.news || [];
-  const impactItems = buildImpacts(analysis, events);
+  const newsItems     = events.news || [];
+  const impactItems   = buildImpacts(analysis, events);
   const allStrategies = flattenOptimized(analysis);
   const optStrategies = flattenOptimized(optimized);
 
   const firstName = (user.name || '').split(' ')[0] || 'there';
-  const initials = (user.name || '  ').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-  const bizName = business?.profile ? `${business.profile.subIndustry || business.profile.industry} Business` : 'Your Business';
+  const initials  = (user.name || '  ').split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  const bizName   = business?.profile
+    ? `${business.profile.subIndustry || business.profile.industry} Business`
+    : 'Your Business';
 
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-        @media (max-width: 768px) {
-          .stats-grid { grid-template-columns: 1fr 1fr !important; }
-          .sug-grid { grid-template-columns: 1fr !important; }
+        * { box-sizing: border-box; }
+        @keyframes tickerScroll {
+          0%   { transform: translateX(0); }
+          100% { transform: translateX(-50%); }
         }
       `}</style>
 
-      {/* Loading screen */}
       <AnimatePresence>
-        {showLoader && <LoadingScreen onComplete={handleLoadingComplete} />}
+        {showLoadingScreen && <LoadingScreen />}
       </AnimatePresence>
 
-      {/* Main app */}
-      {animDone && (
-        <div style={{ minHeight: '100vh', background: '#080A0C', color: '#fff', fontFamily: '"DM Sans", sans-serif' }}>
-          {/* Ambient glows */}
-          <div style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }}>
-            <div style={{ position: 'absolute', top: '-10%', left: '-5%', width: '55vw', height: '55vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255,107,53,0.04) 0%, transparent 70%)' }} />
-            <div style={{ position: 'absolute', bottom: '-10%', right: '-5%', width: '50vw', height: '50vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(245,200,66,0.035) 0%, transparent 70%)' }} />
-          </div>
+      {/* Page border frame */}
+      <PageBorderFrame />
 
-          {/* Navbar */}
-          {!apiLoading && !error && (
-            <Navbar user={user} initials={initials} activePage={activePage} setActivePage={setActivePage} />
+      <div className="min-h-screen text-white pt-24 pb-0"
+        style={{ background: '#080A0C', fontFamily: '"DM Sans", sans-serif' }}>
+
+        <Navbar user={user} initials={initials} />
+
+        {/* Ambient glows */}
+        <div className="fixed inset-0 pointer-events-none overflow-hidden" style={{ zIndex: 0 }}>
+          <div className="absolute top-[-10%] left-[-5%] w-[55vw] h-[55vw] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(255,107,53,0.03) 0%, transparent 70%)' }} />
+          <div className="absolute bottom-[-10%] right-[-5%] w-[50vw] h-[50vw] rounded-full"
+            style={{ background: 'radial-gradient(circle, rgba(245,200,66,0.03) 0%, transparent 70%)' }} />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+
+          {/* ── Welcome Section ── */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="mb-12"
+          >
+            <div className="flex items-center gap-2 mb-4">
+              <div className="w-2 h-2 rounded-full bg-[#F5C842] shadow-[0_0_8px_#F5C842]" />
+              <span className="text-xs font-semibold tracking-[0.15em] uppercase text-white/40 font-mono">
+                Live Intelligence · {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}
+              </span>
+            </div>
+            <h1 className="font-bold leading-tight font-serif text-4xl md:text-5xl lg:text-6xl text-white tracking-tight mb-4">
+              Welcome back, <span className="text-[#F5C842]">{firstName}</span>
+              
+            </h1>
+            <p className="text-lg text-white/50 font-light">
+              Here's what's happening around {bizName} today.
+            </p>
+          </motion.div>
+
+          {error && (
+            <div className="mb-8 rounded-2xl px-6 py-4 flex items-center gap-3 bg-[#FF6B35]/10 border border-[#FF6B35]/20 text-[#FF6B35]">
+              <AlertTriangle size={18} />
+              <p className="text-sm">{error}</p>
+            </div>
           )}
 
-          {/* Content */}
-          <div style={{ position: 'relative', zIndex: 1, maxWidth: 1200, margin: '0 auto', padding: `${apiLoading || error ? '48px' : '80px'} clamp(20px,4vw,56px) 48px` }}>
-
-            {/* Error State */}
-            {error && (
-              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={{ borderRadius: 16, padding: '16px 24px', display: 'flex', alignItems: 'center', gap: 12, background: 'rgba(255,107,53,0.08)', border: '1px solid rgba(255,107,53,0.2)' }}>
-                <AlertTriangle size={16} style={{ color: '#FF6B35', flexShrink: 0 }} />
-                <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.6)', margin: 0 }}>{error}</p>
+          {!showLoadingScreen && !error && (
+            <>
+              {/* ── Stats Row ── */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12"
+              >
+                <StatCard label="News Items"      value={`${newsItems.length} Today`}       index={0} />
+                <StatCard label="Risk Level"      value={analysis.riskLevel || '—'}          index={1} />
+                <StatCard label="Optimised Strats" value={`${optStrategies.length} Ready`}  index={2} />
+                <StatCard label="All Suggestions" value={`${allStrategies.length} Total`}   index={3} />
               </motion.div>
-            )}
 
-            {/* Inline loading (API still fetching after anim done) */}
-            {!error && apiLoading && (
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '80px 0' }}>
-                <Loader2 size={28} style={{ color: 'rgba(255,255,255,0.3)', animation: 'spin 1s linear infinite' }} />
+              {/* ── News Ticker ── */}
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}>
+                <NewsTicker newsItems={newsItems} />
+              </motion.div>
+
+              {/* ── Section Navigation ── */}
+              <div className="flex flex-wrap gap-4 mb-8 border-b border-white/10 pb-4">
+                <button
+                  onClick={() => setActiveTab('impacts')}
+                  className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${activeTab === 'impacts' ? 'bg-[#FF6B35] text-white shadow-[0_0_20px_rgba(255,107,53,0.3)]' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+                >
+                  <AlertTriangle size={18} /> Impacts
+                </button>
+                <button
+                  onClick={() => setActiveTab('suggestions')}
+                  className={`px-6 py-3 rounded-xl font-semibold transition-all flex items-center gap-2 ${activeTab === 'suggestions' ? 'bg-[#F5C842] text-black shadow-[0_0_20px_rgba(245,200,66,0.3)]' : 'bg-white/5 text-white/50 hover:bg-white/10'}`}
+                >
+                  <Lightbulb size={18} /> AI Suggestions
+                </button>
               </div>
-            )}
 
-            {/* Pages */}
-            {!apiLoading && !error && (
-              <AnimatePresence mode="wait">
-                {activePage === 'dashboard' && (
-                  <DashboardPage
-                    key="dashboard"
-                    data={data} newsItems={newsItems} allStrategies={allStrategies}
-                    optStrategies={optStrategies} impactItems={impactItems}
-                    analysis={analysis} user={user} bizName={bizName}
-                    firstName={firstName} initials={initials}
-                    setActivePage={setActivePage}
-                  />
-                )}
-                {activePage === 'impacts' && (
-                  <ImpactsPage key="impacts" impactItems={impactItems} analysis={analysis} setActivePage={setActivePage} />
-                )}
-                {activePage === 'suggestions' && (
-                  <SuggestionsPage key="suggestions" allStrategies={allStrategies} optStrategies={optStrategies} setActivePage={setActivePage} />
-                )}
-              </AnimatePresence>
-            )}
-          </div>
+              {/* ── Dynamic Content Area ── */}
+              <div className="min-h-[500px]">
+                <AnimatePresence mode="wait">
+                  {activeTab === 'impacts' ? (
+                    <motion.div
+                      key="impacts"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: 20 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <ImpactWheel impacts={impactItems} />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="suggestions"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -20 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex flex-col gap-6"
+                    >
+                      <div className="flex justify-end mb-2">
+                        <button
+                          onClick={() => setShowOptimized(!showOptimized)}
+                          className={`px-5 py-2.5 rounded-full font-mono text-xs font-bold transition-all flex items-center gap-2 ${showOptimized ? 'bg-[#6EE7B7]/20 text-[#6EE7B7] border border-[#6EE7B7]/50 shadow-[0_0_20px_rgba(110,231,183,0.2)]' : 'bg-white/5 text-white/50 border border-white/10 hover:bg-white/10 hover:text-white'}`}
+                        >
+                          <Zap size={14} />
+                          {showOptimized ? 'Showing Optimized Strategies' : 'Show Quantum Optimized'}
+                        </button>
+                      </div>
+
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {showOptimized
+                          ? optStrategies.map((item, i) => <OptimizedCard key={i} item={item} />)
+                          : allStrategies.map((item, i) => <SuggestionCard key={i} item={item} />)
+                        }
+                        {(!showOptimized && allStrategies.length === 0) &&
+                          <p className="text-white/40 col-span-full">No suggestions available.</p>}
+                        {(showOptimized && optStrategies.length === 0) &&
+                          <p className="text-white/40 col-span-full">No optimized strategies available.</p>}
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </>
+          )}
         </div>
-      )}
 
-      <style>{`
-        @keyframes spin { to { transform: rotate(360deg); } }
-      `}</style>
+        {/* ── Footer ── */}
+        <div className="relative z-10 max-w-7xl mx-auto px-6 lg:px-8">
+          <Footer bizName={bizName} />
+        </div>
+      </div>
     </>
   );
 }
